@@ -1,53 +1,102 @@
 # ==============================================================================
-# Environment and Configuration Files
+# Environment, Secret, and Custom Configuration Files
 # ==============================================================================
 config.env
 config.env.*
 config.py
 config_local.py
 cfg.zip
-mltbenv/
-mltbenv/*
+*.cfg
+*.conf
+!rclone_sample.conf
 .env
 .env.*
 *.env
 !config_sample.env
+local_settings.*
+settings.json
+secret*
+secrets*
+*secret*
+*password*
+*credential*
 
 # ==============================================================================
-# Credentials, Authentication, Tokens, and Session Data
+# Google Drive, OAuth Tokens, API Keys, Service Accounts & Pickles
 # ==============================================================================
 token.pickle
 token*.pickle
 *.pickle
+token.json
+tokens.json
 credentials.json
 credentials*.json
+client_secrets*.json
+client_secret*.json
+accounts/
+accounts/*
+accounts.zip
+sa/
+sa/*
+service_account*.json
+*.service_account.json
+drive_token*
+gdrive_token*
+
+# ==============================================================================
+# Telegram, Pyrogram, and TDLib Sessions & Databases
+# ==============================================================================
+*.session
+*.session-journal
+*.session-wal
+*.session-shm
+tdlib_user*
+tdlib_user*/
+tdlib_data/
+tdlib_data/*
+tdlib_pool*/
+*.tdlib
+user.session
+bot.session
+
+# ==============================================================================
+# Rclone, Cloud Remotes & Authentication Stores
+# ==============================================================================
 rclone.conf
 rclone.conf.*
 rclone/
 rclone/*
-tokens/
-tokens/*
-accounts/
-accounts/*
+.netrc
+netrc
 cookies.txt
 cookies*.txt
-.netrc
-*.session
-*.session-journal
-tdlib_user*
-tdlib_user*/
-*.ovpn
+*.cookie
+*.cookies
+list_drives.txt
+list_drives*.txt
+
+# ==============================================================================
+# Cryptographic Keys, Certificates, VPN, and SSH Profiles
+# ==============================================================================
 *.key
 *.pem
 *.crt
 *.pfx
 *.p12
+*.ovpn
+*.wireguard
+*.conf.vpn
+id_rsa*
+id_ed25519*
+known_hosts*
 
 # ==============================================================================
-# Runtime, Application State, and Download Directories
+# Runtime Directories, Storage Volumes, Mounts & In-Progress Downloads
 # ==============================================================================
 downloads/
 downloads/*
+download/
+download/*
 thumbnails/
 thumbnails/*
 sabnzbd/
@@ -55,17 +104,73 @@ sabnzbd/*
 !sabnzbdapi/
 qBittorrent/
 qBittorrent/*
+JDownloader/
+JDownloader/*
+cfg/
+cfg/*
+.mnt_*
+.mnt_*/
+*_splits/
+*_splits
+*_extracted_view/
+*_extracted_view
+*_source_archives/
+*.parts
+*.part
+*.aria2
+*.!qB
+*.incomplete
+.unwanted/
 .restartmsg
 temp.txt
 bot/modules/temp.txt
 
 # ==============================================================================
-# Logs, System Files, and Output Dumps
+# Database Dumps, SQLite Databases, Backups, and State Files
+# ==============================================================================
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+*.db
+*.db-wal
+*.db-shm
+*.rdb
+*.dump
+*.sql
+*.sql.gz
+*.bak
+*.backup
+
+# ==============================================================================
+# Logs, System Traces, Core Dumps, and Debug Dumps
 # ==============================================================================
 *.log
+*.log.*
 bot-restart.log
 log.txt
-list_drives.txt
+logs/
+logs/*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+core
+core.*
+
+# ==============================================================================
+# Compressed Archives and Temporary Bundles
+# ==============================================================================
+*.tar.gz
+*.tgz
+*.zip
+!cfg_sample.zip
+*.tar
+*.tar.bz2
+*.tbz2
+*.7z
+*.rar
+*.iso
+*.wim
 
 # ==============================================================================
 # Python Caches, Virtual Environments, and Bytecode
@@ -75,23 +180,32 @@ __pycache__/
 *$py.class
 *.so
 .Python
+mltbenv/
+mltbenv/*
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+.env/
+.venv/
 .pytest_cache/
 .coverage
 htmlcov/
 .mypy_cache/
+.ruff_cache/
 
 # ==============================================================================
-# IDEs, Editors, and OS Artifacts
+# IDEs, Editors, AI Assistant Data, and OS Artifacts
 # ==============================================================================
+.claude/
+.zcode/
 .vscode/
 .idea/
+.cursor/
 .DS_Store
 Thumbs.db
 *.swp
 *.swo
 *~
+*.tmp
