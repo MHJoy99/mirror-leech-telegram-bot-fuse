@@ -25,7 +25,7 @@
 
 *Next-generation Telegram mirror & leech platform powered by Linux FUSE virtual filesystems, on-the-fly streaming extractors, multi-session TDLib upload concurrency, and automated secondary Google Drive replication.*
 
-[Features](#-key-features) • [Architecture](#-architecture--dataflow) • [Feature Matrix](#-feature-matrix) • [Quickstart](#-quickstart--deployment) • [Configuration](#-configuration) • [Runbook & Operations](#-operational-runbook) • [FAQ](#-frequently-asked-questions)
+[Features](#-key-features) • [Architecture](#-architecture--dataflow) • [Feature Matrix](#-feature-matrix) • [Documentation Hub](docs/README.md) • [Quickstart](#-quickstart--deployment) • [Configuration](#-configuration) • [Runbook & Operations](#-operational-runbook) • [FAQ](#-frequently-asked-questions)
 
 ---
 
