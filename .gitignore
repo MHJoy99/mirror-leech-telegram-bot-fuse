@@ -1,0 +1,97 @@
+# ==============================================================================
+# Environment and Configuration Files
+# ==============================================================================
+config.env
+config.env.*
+config.py
+config_local.py
+cfg.zip
+mltbenv/
+mltbenv/*
+.env
+.env.*
+*.env
+!config_sample.env
+
+# ==============================================================================
+# Credentials, Authentication, Tokens, and Session Data
+# ==============================================================================
+token.pickle
+token*.pickle
+*.pickle
+credentials.json
+credentials*.json
+rclone.conf
+rclone.conf.*
+rclone/
+rclone/*
+tokens/
+tokens/*
+accounts/
+accounts/*
+cookies.txt
+cookies*.txt
+.netrc
+*.session
+*.session-journal
+tdlib_user*
+tdlib_user*/
+*.ovpn
+*.key
+*.pem
+*.crt
+*.pfx
+*.p12
+
+# ==============================================================================
+# Runtime, Application State, and Download Directories
+# ==============================================================================
+downloads/
+downloads/*
+thumbnails/
+thumbnails/*
+sabnzbd/
+sabnzbd/*
+!sabnzbdapi/
+qBittorrent/
+qBittorrent/*
+.restartmsg
+temp.txt
+bot/modules/temp.txt
+
+# ==============================================================================
+# Logs, System Files, and Output Dumps
+# ==============================================================================
+*.log
+bot-restart.log
+log.txt
+list_drives.txt
+
+# ==============================================================================
+# Python Caches, Virtual Environments, and Bytecode
+# ==============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# ==============================================================================
+# IDEs, Editors, and OS Artifacts
+# ==============================================================================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

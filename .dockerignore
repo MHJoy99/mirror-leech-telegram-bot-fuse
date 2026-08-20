@@ -1,0 +1,46 @@
+# Python artifacts & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+mltbenv/
+.venv/
+env/
+venv/
+
+# Credentials & Sensitive Configurations
+*.pickle
+token.pickle
+credentials.json
+cookies.txt
+.netrc
+config.env
+config.py
+config_local.py
+rclone.conf
+rclone/
+tokens/
+accounts/
+*.session
+*.ovpn
+secrets*
+
+# Storage and Data Directories
+downloads/
+thumbnails/
+sabnzbd/
+qBittorrent/
+
+# Logs and Temporary files
+*.log
+log.txt
+bot-restart.log
+list_drives.txt
+
+# Version Control & IDEs
+.git/
+.github/
+.gitignore
+.claude/
+.zcode/
+.vscode/
+.idea/

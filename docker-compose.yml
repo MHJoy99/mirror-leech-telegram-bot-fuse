@@ -1,0 +1,33 @@
+services:
+  app:
+    container_name: anasty-rss-mhjoybots-fuse-app-1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bash start.sh
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse:/dev/fuse
+    security_opt:
+      - apparmor:unconfined
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - /srv/bot-storage/fuse_bot/downloads:/app/downloads
+      - /srv/bot-storage/fuse_bot/accounts:/app/accounts
+      - /srv/bot-storage/fuse_bot/thumbnails:/app/thumbnails
+      - /srv/bot-storage/fuse_bot/tokens:/app/tokens
+      - /srv/bot-storage/fuse_bot/rclone:/app/rclone
+      - /srv/bot-storage/fuse_bot/qBittorrent:/app/qBittorrent
+      - /srv/bot-storage/fuse_bot/sabnzbd:/app/sabnzbd
+      - /srv/bot-storage/fuse_bot/token.pickle:/app/token.pickle
+      - /srv/bot-storage/fuse_bot/credentials.json:/app/credentials.json
+      - /srv/bot-storage/fuse_bot/cookies.txt:/app/cookies.txt
+      - /srv/bot-storage/fuse_bot/.netrc:/app/.netrc
