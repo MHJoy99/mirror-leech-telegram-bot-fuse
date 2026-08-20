@@ -1,8 +1,8 @@
 # FUSE Zero-Double-Storage, Telegram ZIP GUI Picker & TDLib Pool — Master Implementation Bible
 
-> **Project:** `Anasy-RSS-MHJoyBots-FUSE` (Production Telegram Mirror/Leech Bot Fork based on `python-aria-mirror-bot` / Pyrogram / TDLib / aria2c / FUSE)  
+> **Project:** `mirror-leech-telegram-bot-fuse` (Production Telegram Mirror/Leech Bot Fork based on `python-aria-mirror-bot` / Pyrogram / TDLib / aria2c / FUSE)  
 > **Environment:** Host VPS dedicated partition (e.g. `/srv/bot-storage` or `/path/to/storage`) | Ubuntu Linux / Docker  
-> **Containers:** Production bot `mltb-container` / `anasy-fuse-bot` (FUSE isolated)  
+> **Containers:** Production bot `mltb-container` / `mltb-fuse-bot` (FUSE isolated)  
 > **Status:** LIVE PRODUCTION — Zero-Double-Storage FUSE engine, Native Telegram ZIP GUI Picker, Selective Streaming, Leech Isolation Guard, Small-File Pipeline & TDLib Multi-Session Concurrency Pool fully verified.
 
 ---
@@ -49,7 +49,7 @@ With an 84 GB SSD partition (`/dev/vda4` mounted on `/srv/bot-storage`) having ~
 5. **TDLib Multi-Session Concurrency Pool:** High-speed parallel Telegram userbot upload engine supporting round-robin rotation over multiple authenticated TDLib SQLite session databases (`tdlib_user_*`) for multi-worker Telegram ingress up to 4 GB per file.
 
 ### 1.3 100% Deterministic Reproducibility Guarantee
-Every code path, CLI invocation, FUSE option, mount regex, and configuration variable documented here corresponds to verified, live-tested code running in container `anasy-rss-mhjoybots-fuse-app-1` on host `/root/Anasy-RSS-MHJoyBots-FUSE`.
+Every code path, CLI invocation, FUSE option, mount regex, and configuration variable documented here corresponds to verified, live-tested code running in container `mirror-leech-fuse-app-1` on host `/root/mirror-leech-telegram-bot-fuse`.
 
 ---
 
@@ -143,7 +143,7 @@ archivemount -o readonly,nosave <archive_file_path> <mount_point_directory>
 Because `archivemount` daemonizes immediately (the foreground parent process returns code `0` while the background daemon takes 200–800ms to register with the Linux VFS), naive synchronous process execution fails. The engine implements a robust 30-second polling probe in `bot/helper/ext_utils/files_utils.py` (lines 455–551):
 
 ```python
-# Absolute Path: /root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/ext_utils/files_utils.py:455-551
+# Absolute Path: /root/mirror-leech-telegram-bot-fuse/bot/helper/ext_utils/files_utils.py:455-551
 mount_point = ospath.join(parent, f".mnt_{base}_{id(self)%100000}")
 await aiomakedirs(mount_point, exist_ok=True)
 archivemount_opts = "readonly,nosave"
@@ -197,7 +197,7 @@ If a container or cleanup routine simply invokes `shutil.rmtree` on a directory 
 In `bot/helper/ext_utils/files_utils.py` (lines 123–150), `clean_download` performs proactive unmounting before tree removal:
 
 ```python
-# Absolute Path: /root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/ext_utils/files_utils.py:123-150
+# Absolute Path: /root/mirror-leech-telegram-bot-fuse/bot/helper/ext_utils/files_utils.py:123-150
 async def clean_download(opath):
     if await aiopath.exists(opath):
         LOGGER.info(f"Cleaning Download: {opath}")
@@ -290,7 +290,7 @@ The fix implements strict separation at both initialization and completion stage
 
 #### Layer 1: Common Initializer Guard (`bot/helper/common.py:596-601`)
 ```python
-# Absolute Path: /root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/common.py:596-601
+# Absolute Path: /root/mirror-leech-telegram-bot-fuse/bot/helper/common.py:596-601
 # For leech, don't auto-mirror to GDrive - only mirror does secondary backup
 if not self.is_leech:
     await self.resolve_secondary_gdrive_dest()
@@ -300,7 +300,7 @@ else:
 
 #### Layer 2: Completion & Picker Guard (`bot/helper/listeners/task_listener.py:598-602`)
 ```python
-# Absolute Path: /root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/listeners/task_listener.py:598-602
+# Absolute Path: /root/mirror-leech-telegram-bot-fuse/bot/helper/listeners/task_listener.py:598-602
 # Skip GDrive secondary upload when zip picker filtered (user wanted selective leech, not 32GB mirror)
 if getattr(self, '_zip_selected_rels', None) and self.secondary_drive_requested:
     LOGGER.info(f"Zip picker active - skipping secondary GDrive upload for selective {len(self._zip_selected_rels)} files")
@@ -323,7 +323,7 @@ In `proceed_split_streaming`:
 In `bot/helper/common.py` (lines 1413–1614), `proceed_split_streaming` introduces dedicated handling for small-file sets:
 
 ```python
-# Absolute Path: /root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/common.py:1413-1436
+# Absolute Path: /root/mirror-leech-telegram-bot-fuse/bot/helper/common.py:1413-1436
 _picker_small_only = False
 if hasattr(self, '_zip_selected_rels') and self._zip_selected_rels:
     filtered = {}
@@ -355,7 +355,7 @@ if not _picker_small_only:
 Reading multiple virtual files concurrently from `archivemount` saturates the single-threaded FUSE daemon, leading to kernel I/O wait deadlocks. Small files are symlinked into isolated single-file temporary directories and dispatched sequentially:
 
 ```python
-# Absolute Path: /root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/common.py:1556-1614
+# Absolute Path: /root/mirror-leech-telegram-bot-fuse/bot/helper/common.py:1556-1614
 if remaining_small:
     LOGGER.info(f"Uploading remaining small files one-by-one: {len(remaining_small)} from {dl_path} (sequential to avoid FUSE choke)")
     for r_idx, f_path in enumerate(remaining_small, 1):
@@ -407,7 +407,7 @@ TDLIB_USER_DB_PATHS = [
 Each client in `user_pool` is initialized with separate file/chat/message SQLite stores. When an upload task requests a client via `TdlibManager.get_upload_client()`, the manager acquires `_pool_lock` and round-robins across all healthy, authorized clients.
 
 ```python
-# Absolute Path: /root/Anasy-RSS-MHJoyBots-FUSE/bot/core/tdlib_manager.py:104-129
+# Absolute Path: /root/mirror-leech-telegram-bot-fuse/bot/core/tdlib_manager.py:104-129
 @classmethod
 async def get_upload_client(cls):
     if cls.user_pool:
@@ -430,7 +430,7 @@ async def get_upload_client(cls):
 Different distributions of `pytdbot` and `libtdjson.so` present varying signature expectations (`str` vs UTF-8 `bytes`). `_patch_tdjson_binding()` dynamically hooks the C-FFI calls at runtime:
 
 ```python
-# Absolute Path: /root/Anasy-RSS-MHJoyBots-FUSE/bot/core/tdlib_manager.py:48-94
+# Absolute Path: /root/mirror-leech-telegram-bot-fuse/bot/core/tdlib_manager.py:48-94
 @classmethod
 def _patch_tdjson_binding(cls):
     try:
@@ -474,18 +474,18 @@ def _patch_tdjson_binding(cls):
 
 | File Path | Lines Affected | Nature | Functional Purpose |
 |---|---|---|---|
-| `/root/Anasy-RSS-MHJoyBots-FUSE/bot/modules/zip_selector.py` | L1–L240 (New File) | Added | Full inline ZIP GUI picker, state management, pagination, and callback routing. |
-| `/root/Anasy-RSS-MHJoyBots-FUSE/bot/core/handlers.py` | L3, L316 | Modified | Hooked `zip_selector_callback` with regex filter `^zipsel` into Pyrogram dispatch. |
-| `/root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/common.py` | L596–L601, L1413–L1614 | Modified | Added `is_leech` Drive isolation guard, `_picker_small_only` engine, and anti-choke sequential upload. |
-| `/root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/listeners/task_listener.py` | L448–L460, L582–L618 | Modified | Integrated `show_zip_picker` trigger on `-s` flag, selective GDrive skip, and multi-part accumulator. |
-| `/root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/ext_utils/files_utils.py` | L123–L150, L172–L195, L421–L551 | Modified | FUSE daemon poll verification, `.mnt_` size calculation guard, and `fusermount -uz` unmounting. |
+| `/root/mirror-leech-telegram-bot-fuse/bot/modules/zip_selector.py` | L1–L240 (New File) | Added | Full inline ZIP GUI picker, state management, pagination, and callback routing. |
+| `/root/mirror-leech-telegram-bot-fuse/bot/core/handlers.py` | L3, L316 | Modified | Hooked `zip_selector_callback` with regex filter `^zipsel` into Pyrogram dispatch. |
+| `/root/mirror-leech-telegram-bot-fuse/bot/helper/common.py` | L596–L601, L1413–L1614 | Modified | Added `is_leech` Drive isolation guard, `_picker_small_only` engine, and anti-choke sequential upload. |
+| `/root/mirror-leech-telegram-bot-fuse/bot/helper/listeners/task_listener.py` | L448–L460, L582–L618 | Modified | Integrated `show_zip_picker` trigger on `-s` flag, selective GDrive skip, and multi-part accumulator. |
+| `/root/mirror-leech-telegram-bot-fuse/bot/helper/ext_utils/files_utils.py` | L123–L150, L172–L195, L421–L551 | Modified | FUSE daemon poll verification, `.mnt_` size calculation guard, and `fusermount -uz` unmounting. |
 
 ---
 
 ## 9. File Map & Repository Inventory
 
 ```
-/root/Anasy-RSS-MHJoyBots-FUSE/
+/root/mirror-leech-telegram-bot-fuse/
 ├── ARCHITECTURE.md                                    # System architecture, container mapping & runtime state
 ├── BOT_STORAGE_SETUP_2026-03-27.md                     # Storage partition topology & disk bind layout
 ├── config.env                                         # Live environment credentials & MongoDB cluster config
@@ -522,12 +522,12 @@ def _patch_tdjson_binding(cls):
 
 ### 10.1 Production Container Status Assertion
 ```bash
-docker ps --filter "name=anasy-rss-mhjoybots-fuse-app-1" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+docker ps --filter "name=mirror-leech-fuse-app-1" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
 ```
 **Actual Output:**
 ```
 NAMES                            IMAGE          STATUS          PORTS
-anasy-rss-mhjoybots-fuse-app-1   f0233466b234   Up 58 minutes   
+mirror-leech-fuse-app-1   f0233466b234   Up 58 minutes   
 ```
 
 ### 10.2 Real Log Stream Verification Assertions
@@ -572,30 +572,30 @@ When updating code in the repository on the host, copy modified files into the a
 
 ```bash
 # 1. Compile locally on host to verify syntax
-python3 -m py_compile /root/Anasy-RSS-MHJoyBots-FUSE/bot/modules/zip_selector.py \
-                      /root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/listeners/task_listener.py \
-                      /root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/common.py \
-                      /root/Anasy-RSS-MHJoyBots-FUSE/bot/core/handlers.py
+python3 -m py_compile /root/mirror-leech-telegram-bot-fuse/bot/modules/zip_selector.py \
+                      /root/mirror-leech-telegram-bot-fuse/bot/helper/listeners/task_listener.py \
+                      /root/mirror-leech-telegram-bot-fuse/bot/helper/common.py \
+                      /root/mirror-leech-telegram-bot-fuse/bot/core/handlers.py
 
 # 2. Synchronize files into running container
-docker cp /root/Anasy-RSS-MHJoyBots-FUSE/bot/modules/zip_selector.py anasy-rss-mhjoybots-fuse-app-1:/app/bot/modules/zip_selector.py
-docker cp /root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/listeners/task_listener.py anasy-rss-mhjoybots-fuse-app-1:/app/bot/helper/listeners/task_listener.py
-docker cp /root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/common.py anasy-rss-mhjoybots-fuse-app-1:/app/bot/helper/common.py
-docker cp /root/Anasy-RSS-MHJoyBots-FUSE/bot/core/handlers.py anasy-rss-mhjoybots-fuse-app-1:/app/bot/core/handlers.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/modules/zip_selector.py mirror-leech-fuse-app-1:/app/bot/modules/zip_selector.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/helper/listeners/task_listener.py mirror-leech-fuse-app-1:/app/bot/helper/listeners/task_listener.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/helper/common.py mirror-leech-fuse-app-1:/app/bot/helper/common.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/core/handlers.py mirror-leech-fuse-app-1:/app/bot/core/handlers.py
 
 # 3. Clean stale pycache and restart FUSE bot container
-docker exec anasy-rss-mhjoybots-fuse-app-1 find /app/bot -name "__pycache__" -exec rm -rf {} +
-docker restart anasy-rss-mhjoybots-fuse-app-1
+docker exec mirror-leech-fuse-app-1 find /app/bot -name "__pycache__" -exec rm -rf {} +
+docker restart mirror-leech-fuse-app-1
 
 # 4. Verify clean startup
 sleep 4
-docker logs anasy-rss-mhjoybots-fuse-app-1 --tail 30 | grep "Bot Started"
+docker logs mirror-leech-fuse-app-1 --tail 30 | grep "Bot Started"
 ```
 
 ### 11.2 Real-Time Monitoring & Diagnostic Log Tailing
 ```bash
 # Monitor live streaming, FUSE mounts, and upload progress
-docker logs anasy-rss-mhjoybots-fuse-app-1 --tail 100 --follow | grep -E "Aria2Download|onDownloadComplete|FUSE extract|Zip picker|Streaming split|Telegram upload|Leech Completed|Leech mode"
+docker logs mirror-leech-fuse-app-1 --tail 100 --follow | grep -E "Aria2Download|onDownloadComplete|FUSE extract|Zip picker|Streaming split|Telegram upload|Leech Completed|Leech mode"
 ```
 
 ### 11.3 Emergency Mount Inspection & Manual Cleanup Protocol
@@ -606,7 +606,7 @@ If a task process is abruptly killed (`SIGKILL`) leaving orphaned FUSE mounts in
 cat /proc/mounts | grep archivemount
 
 # 2. Force unmount inside container and host
-docker exec anasy-fuse-bot bash -c 'for m in $(grep archivemount /proc/mounts | awk "{print \$2}"); do fusermount -uz "$m"; done'
+docker exec mltb-fuse-bot bash -c 'for m in $(grep archivemount /proc/mounts | awk "{print \$2}"); do fusermount -uz "$m"; done'
 
 # 3. Remove orphaned task download directories on host storage
 rm -rf /srv/bot-storage/fuse_bot/downloads/* # or /path/to/storage/fuse_bot/downloads/*

@@ -11,11 +11,11 @@
 
 ## Reporting a Vulnerability
 
-The security of **Anasy-RSS-MHJoyBots-FUSE** is taken seriously. If you discover a security vulnerability, credential leak risk, or potential exploit, please report it responsibly.
+The security of **mirror-leech-telegram-bot-fuse** is taken seriously. If you discover a security vulnerability, credential leak risk, or potential exploit, please report it responsibly.
 
 ### How to Report
 - **Private Advisory**: Use the GitHub Security Advisories tab on the repository to submit a confidential report.
-- **Direct Email**: Alternatively, contact the maintainer directly at `mhjoygamershub@gmail.com` with the subject `[SECURITY] Anasy-RSS-MHJoyBots-FUSE Vulnerability`.
+- **Direct Email**: Alternatively, contact the maintainer directly at `mhjoygamershub@gmail.com` with the subject `[SECURITY] mirror-leech-telegram-bot-fuse Vulnerability`.
 
 ### Please Include:
 1. A description of the vulnerability and its potential impact.

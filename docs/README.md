@@ -1,6 +1,6 @@
-# 📚 Anasy-RSS-MHJoyBots-FUSE Documentation Hub
+# 📚 mirror-leech-telegram-bot-fuse Documentation Hub
 
-Welcome to the comprehensive documentation index for **Anasy-RSS-MHJoyBots-FUSE**. This index organizes all technical specifications, architecture blueprints, deployment runbooks, and subsystem guides into structured categories.
+Welcome to the comprehensive documentation index for **mirror-leech-telegram-bot-fuse** (`MHJoy99/mirror-leech-telegram-bot-fuse`). This index organizes all technical specifications, architecture blueprints, deployment runbooks, and subsystem guides into structured categories.
 
 ---
 

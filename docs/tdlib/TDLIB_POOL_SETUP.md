@@ -6,7 +6,7 @@
 [![Concurrency](https://img.shields.io/badge/Concurrency-Multi--Session%20Pool-success?style=for-the-badge&logo=fastapi&logoColor=white)](TDLIB_UPLOAD_PARALLELISM.md)
 [![License](https://img.shields.io/badge/License-GPL--3.0-blue?style=for-the-badge&logo=gnu&logoColor=white)](LICENSE)
 
-*Comprehensive guide for provisioning, authorizing, and configuring a high-throughput multi-session TDLib userbot pool in Anasy-RSS-MHJoyBots-FUSE.*
+*Comprehensive guide for provisioning, authorizing, and configuring a high-throughput multi-session TDLib userbot pool in mirror-leech-telegram-bot-fuse (MHJoy99/mirror-leech-telegram-bot-fuse).*
 
 </div>
 
@@ -65,7 +65,7 @@ Execute the tool within the bot environment or container:
 
 ```bash
 # Syntax: python3 setup_tdlib_pool.py [NUMBER_OF_ACCOUNTS] [BASE_DIRECTORY]
-docker exec -it anasy-rss-mhjoybots-fuse-app-1 bash -c "source /app/mltbenv/bin/activate && python3 setup_tdlib_pool.py 3 /app/tdlib_user"
+docker exec -it mirror-leech-telegram-bot-fuse-app-1 bash -c "source /app/mltbenv/bin/activate && python3 setup_tdlib_pool.py 3 /app/tdlib_user"
 ```
 
 ### 3.2 Parameter Reference

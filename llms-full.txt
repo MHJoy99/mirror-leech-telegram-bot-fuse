@@ -1,14 +1,14 @@
-# Anasy-RSS-MHJoyBots-FUSE — Complete Technical Knowledge Base
+# mirror-leech-telegram-bot-fuse — Complete Technical Knowledge Base
 
 ## Overview & Executive Summary
 
-Anasy-RSS-MHJoyBots-FUSE is an enterprise-grade Telegram mirror and leech engine written in Python 3.12+ (AsyncIO / Pyrogram / TDLib). It is designed to resolve disk exhaustion issues on storage-constrained Virtual Private Servers (VPS) when processing multi-gigabyte compressed archives.
+mirror-leech-telegram-bot-fuse is an enterprise-grade Telegram mirror and leech engine written in Python 3.12+ (AsyncIO / Pyrogram / TDLib). It is designed to resolve disk exhaustion issues on storage-constrained Virtual Private Servers (VPS) when processing multi-gigabyte compressed archives.
 
 ### The Double-Storage Bottleneck
 Legacy mirror/leech bots require downloading an archive (e.g. 33 GB `.zip`), fully extracting it to disk via `7z x` (requiring an additional 35 GB), and generating split parts (+20 GB), leading to peak storage usage exceeding 88 GB on an 84 GB SSD partition.
 
 ### The FUSE Zero-Double-Storage Solution
-Anasy-RSS-MHJoyBots-FUSE mounts archive files directly into the Linux VFS using `archivemount -o readonly,nosave`. The archive's virtual file extents are read and decompressed on-the-fly directly into the splitting and upload pipelines. Peak disk usage is capped at `Archive Size + Single Active Split (~2.4 GB)`, achieving over 50% peak storage reduction and enabling concurrent tasks on budget VPS hardware.
+mirror-leech-telegram-bot-fuse mounts archive files directly into the Linux VFS using `archivemount -o readonly,nosave`. The archive's virtual file extents are read and decompressed on-the-fly directly into the splitting and upload pipelines. Peak disk usage is capped at `Archive Size + Single Active Split (~2.4 GB)`, achieving over 50% peak storage reduction and enabling concurrent tasks on budget VPS hardware.
 
 ---
 

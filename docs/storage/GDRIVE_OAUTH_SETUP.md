@@ -1,10 +1,10 @@
-# Google Drive OAuth Switch to 5 TB Owner Account
+# Google Drive OAuth Setup & Configuration
 
 **Date:** 2026-08-08
 
 ## Overview
 
-Successfully updated the Google Drive API v3 authentication token (`token.pickle`) and configuration defaults for the live Telegram mirror/leech bot (`mltb-container` / `anasy-fuse-bot`).
+Successfully updated the Google Drive API v3 authentication token (`token.pickle`) and configuration defaults for the live **mirror-leech-telegram-bot-fuse** (`MHJoy99/mirror-leech-telegram-bot-fuse`) bot (`mltb-container` / `mirror-leech-telegram-bot-fuse-app-1`).
 
 The upload identity was switched from a free 15 GB account (`old_service_account@example.com`) to the target folder owner's personal 5 TB Google Account (`user@example.com` / `OwnerAccount`).
 

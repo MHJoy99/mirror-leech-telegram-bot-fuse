@@ -16,7 +16,7 @@
 
 Standard mirror bots operate in mutually exclusive modes: a task is either a **Telegram Leech** (`is_leech=True`) or a **Cloud Mirror** (`is_leech=False`).
 
-**Anasy-RSS-MHJoyBots-FUSE** implements a hybrid **Dual Leech + Google Drive Backup** architecture. A leech task first transmits the prepared media payload to Telegram. Once the primary Telegram delivery succeeds, the engine automatically replicates the final post-processed artifacts into Google Drive in the background.
+**mirror-leech-telegram-bot-fuse** implements a hybrid **Dual Leech + Google Drive Backup** architecture. A leech task first transmits the prepared media payload to Telegram. Once the primary Telegram delivery succeeds, the engine automatically replicates the final post-processed artifacts into Google Drive in the background.
 
 ```
                           [ User Task: /leech <url> ]

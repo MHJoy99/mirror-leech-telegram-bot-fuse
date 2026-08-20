@@ -1,6 +1,6 @@
-# Contributing to Anasy-RSS-MHJoyBots-FUSE
+# Contributing to mirror-leech-telegram-bot-fuse
 
-Thank you for your interest in contributing to **Anasy-RSS-MHJoyBots-FUSE**! We welcome contributions, bug reports, and feature suggestions from the open-source community.
+Thank you for your interest in contributing to **mirror-leech-telegram-bot-fuse**! We welcome contributions, bug reports, and feature suggestions from the open-source community.
 
 ---
 

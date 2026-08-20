@@ -16,7 +16,7 @@
 
 Standard Telegram mirror bots process leech uploads serially: traversing directories, preparing one file, uploading it synchronously, and blocking all subsequent transfers until the current file completes.
 
-**Anasy-RSS-MHJoyBots-FUSE** replaces serial traversal with an asynchronous **Global Batch Dispatch & Bounded Worker Architecture**. Upload payloads are aggregated into structured batches and dispatched across an `asyncio.Semaphore` pool, dynamically rotating across authenticated TDLib client instances.
+**mirror-leech-telegram-bot-fuse** (`MHJoy99/mirror-leech-telegram-bot-fuse`) replaces serial traversal with an asynchronous **Global Batch Dispatch & Bounded Worker Architecture**. Upload payloads are aggregated into structured batches and dispatched across an `asyncio.Semaphore` pool, dynamically rotating across authenticated TDLib client instances.
 
 ---
 

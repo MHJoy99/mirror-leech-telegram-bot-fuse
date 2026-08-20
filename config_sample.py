@@ -1,5 +1,5 @@
 # ==============================================================================
-#                      ANASY-RSS-MHJOYBOTS-FUSE CONFIGURATION
+#                      MIRROR-LEECH-TELEGRAM-BOT-FUSE CONFIGURATION
 # ==============================================================================
 # This configuration file controls bot behavior, database persistence, Telegram
 # uploads (TDLib / Pyrogram), concurrency, cloud storage (Google Drive, Rclone),

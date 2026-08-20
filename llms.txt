@@ -1,8 +1,8 @@
-# Anasy-RSS-MHJoyBots-FUSE
+# mirror-leech-telegram-bot-fuse
 
 > High-Performance Telegram Mirror, Leech & FUSE Zero-Double-Storage Engine
 
-Anasy-RSS-MHJoyBots-FUSE is an advanced asynchronous Python Telegram mirror and leech bot that solves the critical double-storage bottleneck on VPS deployments. By utilizing Linux FUSE (`archivemount` in `readonly,nosave` mode), multi-gigabyte archives (`.zip`, `.tar`, `.7z`) are mounted directly into the virtual filesystem without physical decompression, reducing peak disk footprint by over 50%.
+mirror-leech-telegram-bot-fuse is an advanced asynchronous Python Telegram mirror and leech bot that solves the critical double-storage bottleneck on VPS deployments. By utilizing Linux FUSE (`archivemount` in `readonly,nosave` mode), multi-gigabyte archives (`.zip`, `.tar`, `.7z`) are mounted directly into the virtual filesystem without physical decompression, reducing peak disk footprint by over 50%.
 
 ## Key Capabilities
 
@@ -31,7 +31,7 @@ Anasy-RSS-MHJoyBots-FUSE is an advanced asynchronous Python Telegram mirror and 
 
 ```bash
 git clone https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse.git
-cd Anasy-RSS-MHJoyBots-FUSE
+cd mirror-leech-telegram-bot-fuse
 cp config_sample.py config.py
 docker compose up -d --build
 ```

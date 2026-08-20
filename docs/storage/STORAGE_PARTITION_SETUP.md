@@ -1,4 +1,4 @@
-# Anasy Motion Bot Storage Notes
+# mirror-leech-telegram-bot-fuse Storage Partition Setup & Bind Layout
 
 Date: 2026-03-27
 
@@ -8,7 +8,7 @@ The VPS disk is `100 GiB`, but the root filesystem on `/dev/vda2` only uses abou
 There was about `35 GiB` of free, unallocated disk space at the end of the disk.
 
 Normal installs and normal Docker writable layers were not using that extra space.
-The goal was to make the Telegram mirror-leech bot use that extra storage for downloads and bot data.
+The goal was to make **mirror-leech-telegram-bot-fuse** (`MHJoy99/mirror-leech-telegram-bot-fuse`) use that extra storage for downloads and bot data.
 
 ## Disk Layout Before
 
@@ -42,7 +42,7 @@ Using a separate partition avoided risky root partition edits and still made the
 
 The active Telegram bot container was:
 
-- container name: `mltb-container` (or `anasy-fuse-bot`)
+- container name: `mltb-container` (or `mirror-leech-telegram-bot-fuse`)
 - image: `mltb-container-image`
 
 The old container was preserved for rollback as:

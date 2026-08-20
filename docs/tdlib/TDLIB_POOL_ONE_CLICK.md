@@ -6,7 +6,7 @@
 [![Automation](https://img.shields.io/badge/Automation-Auto--Config%20Patching-success?style=for-the-badge&logo=gnu-bash&logoColor=white)](clone_tdlib_pool.py)
 [![License](https://img.shields.io/badge/License-GPL--3.0-blue?style=for-the-badge&logo=gnu&logoColor=white)](LICENSE)
 
-*Automated utility to replicate authorized TDLib session databases into incremental pool instances and patch runtime configurations in a single command.*
+*Automated utility to replicate authorized TDLib session databases into incremental pool instances and patch runtime configurations in mirror-leech-telegram-bot-fuse (MHJoy99/mirror-leech-telegram-bot-fuse).*
 
 </div>
 
@@ -51,7 +51,7 @@ The `clone_tdlib_pool.py` tool provides zero-interaction replication of an alrea
 ### 2.1 Basic Usage
 
 ```bash
-docker exec -it anasy-rss-mhjoybots-fuse-app-1 python3 clone_tdlib_pool.py [COUNT] [BASE_DIR] [--config CONFIG_FILE]
+docker exec -it mirror-leech-telegram-bot-fuse-app-1 python3 clone_tdlib_pool.py [COUNT] [BASE_DIR] [--config CONFIG_FILE]
 ```
 
 ### 2.2 CLI Arguments
@@ -71,7 +71,7 @@ docker exec -it anasy-rss-mhjoybots-fuse-app-1 python3 clone_tdlib_pool.py [COUN
 Run the cloner to generate 8 slots and patch `config.py`:
 
 ```bash
-docker exec -it anasy-rss-mhjoybots-fuse-app-1 python3 clone_tdlib_pool.py 8 /app/tdlib_user --config /app/config.py
+docker exec -it mirror-leech-telegram-bot-fuse-app-1 python3 clone_tdlib_pool.py 8 /app/tdlib_user --config /app/config.py
 ```
 
 #### Output Trace:

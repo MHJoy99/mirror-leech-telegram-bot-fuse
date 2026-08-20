@@ -3,11 +3,11 @@
 <div align="center">
 
 [![Upstream Fork](https://img.shields.io/badge/Fork%20Of-anasty17%2Fmirror--leech--telegram--bot-26A5E4?style=for-the-badge&logo=github&logoColor=white)](https://github.com/anasty17/mirror-leech-telegram-bot)
-[![Maintained By](https://img.shields.io/badge/Maintained%20By-MHJoy99%20%2F%20MHJoyBots-orange?style=for-the-badge&logo=telegram&logoColor=white)](https://github.com/MHJoy99/Anasy-motion-new)
+[![Maintained By](https://img.shields.io/badge/Maintained%20By-MHJoy99%20%2F%20MHJoyBots-orange?style=for-the-badge&logo=telegram&logoColor=white)](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse)
 [![Architecture](https://img.shields.io/badge/Architecture-FUSE%20%2B%20TDLib%20Pool-success?style=for-the-badge&logo=linux&logoColor=white)](docs/FUSE_ZERO_DOUBLE_STORAGE_AND_ZIP_PICKER.md)
 [![License](https://img.shields.io/badge/License-GPL--3.0-blue?style=for-the-badge&logo=gnu&logoColor=white)](LICENSE)
 
-*Comprehensive technical specification detailing architectural divergency, runtime patches, new subsystem modules, and operational behavior between upstream `mirror-leech-telegram-bot` and `Anasy-RSS-MHJoyBots-FUSE`.*
+*Comprehensive technical specification detailing architectural divergency, runtime patches, new subsystem modules, and operational behavior between upstream `mirror-leech-telegram-bot` and `mirror-leech-telegram-bot-fuse`.*
 
 </div>
 
@@ -15,7 +15,7 @@
 
 ## 1. Executive Summary
 
-**Anasy-RSS-MHJoyBots-FUSE** is a high-performance production fork of `anasty17/mirror-leech-telegram-bot` (MLTB). While upstream MLTB serves as a versatile multi-protocol mirror/leech engine, standard deployments suffer from severe storage amplification (the "double-storage penalty" on archives) and strict per-account Telegram upload concurrency ceilings.
+**mirror-leech-telegram-bot-fuse** is a high-performance production fork of `anasty17/mirror-leech-telegram-bot` (MLTB). While upstream MLTB serves as a versatile multi-protocol mirror/leech engine, standard deployments suffer from severe storage amplification (the "double-storage penalty" on archives) and strict per-account Telegram upload concurrency ceilings.
 
 This fork introduces five primary architectural innovations:
 1. **Linux FUSE Virtual Mounting (`archivemount`)**: Eliminates the 2x physical disk extraction penalty on multi-GB archives by mounting them directly into the Linux VFS.
@@ -28,7 +28,7 @@ This fork introduces five primary architectural innovations:
 
 ## 2. High-Level Comparison Matrix
 
-| Subsystem / Feature | Upstream MLTB (`anasty17`) | Anasy-RSS-MHJoyBots-FUSE | Operational Impact |
+| Subsystem / Feature | Upstream MLTB (`anasty17`) | mirror-leech-telegram-bot-fuse | Operational Impact |
 | :--- | :--- | :--- | :--- |
 | **Archive Decompression** | Physical `7z x` extraction to disk | **Linux FUSE (`archivemount -o readonly,nosave`)** | **50% Disk Space Savings**; Zero raw extraction overhead |
 | **Archive Selection** | CLI flags / all-or-nothing | **Interactive Inline ZIP GUI Picker** | Interactive UI with checkboxes, pagination, and size totals |
@@ -52,7 +52,7 @@ This fork introduces five primary architectural innovations:
 +---------------------------------------------------------------------------------------------------+
 
 +---------------------------------------------------------------------------------------------------+
-| Anasy-RSS-MHJoyBots-FUSE Pipeline:                                                                |
+| mirror-leech-telegram-bot-fuse Pipeline:                                                          |
 | [Download 33GB ZIP] ──▶ [FUSE VFS Mount (.mnt_*)] ──▶ [Stream Single File Split] ──▶ Total: ~35GB |
 |                                │                                                                  |
 |                                ├──▶ [Inline Telegram ZIP Picker GUI]                             |
@@ -120,7 +120,7 @@ This fork introduces five primary architectural innovations:
 ## 4. Repository Modification Inventory
 
 ```
-/root/Anasy-RSS-MHJoyBots-FUSE/
+/root/mirror-leech-telegram-bot-fuse/
 ├── bot/
 │   ├── core/
 │   │   ├── config_manager.py        # Added LEECH_CAPTION template loader & alternate module support

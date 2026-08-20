@@ -1,6 +1,6 @@
-# Anasy-RSS-MHJoyBots-FUSE Deployment & Operations Guide
+# mirror-leech-telegram-bot-fuse Deployment & Operations Guide
 
-Comprehensive production deployment, configuration, resource allocation, and troubleshooting guide for **Anasy-RSS-MHJoyBots-FUSE** running on Linux VPS host environments with Docker, FUSE (`archivemount`), and Systemd management.
+Comprehensive production deployment, configuration, resource allocation, and troubleshooting guide for **mirror-leech-telegram-bot-fuse** (`MHJoy99/mirror-leech-telegram-bot-fuse`) running on Linux VPS host environments with Docker, FUSE (`archivemount`), and Systemd management.
 
 ---
 
@@ -40,7 +40,7 @@ Comprehensive production deployment, configuration, resource allocation, and tro
 
 ## 1. Architectural Overview
 
-The **Anasy-RSS-MHJoyBots-FUSE** service is a high-throughput Telegram Mirror/Leech bot built on top of Python 3, Pyrogram/Telethon, aria2c, qBittorrent, and SABnzbd.
+The **mirror-leech-telegram-bot-fuse** service is a high-throughput Telegram Mirror/Leech bot built on top of Python 3, Pyrogram/Telethon, aria2c, qBittorrent, and SABnzbd.
 
 ```
 +-----------------------------------------------------------------------------------+
@@ -52,7 +52,7 @@ The **Anasy-RSS-MHJoyBots-FUSE** service is a high-throughput Telegram Mirror/Le
 |    +-- cookies.txt, credentials.json, token.pickle                     |          |
 |                                                                        |          |
 |  +---------------------------------------------------------------------+-------+  |
-|  | Docker Container: anasy-fuse-bot (or mltb-container)                         |  |
+|  | Docker Container: mirror-leech-telegram-bot-fuse-app-1 (or mltb-container)       |  |
 |  | (Capabilities: CAP_SYS_ADMIN, Device: /dev/fuse, AppArmor: unconfined)       |  |
 |  |                                                                             |  |
 |  |  /app/downloads/ <----------------------------------------------------------+  |
@@ -91,7 +91,7 @@ Setting `security_opt: ["apparmor:unconfined"]` disables this restriction for th
 
 ### 1.3 Complete Production docker-compose.yml
 
-Save the following file to `/root/Anasy-RSS-MHJoyBots-FUSE/docker-compose.yml`:
+Save the following file to `/root/mirror-leech-telegram-bot-fuse/docker-compose.yml`:
 
 ```yaml
 version: "3.8"
@@ -101,7 +101,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: anasy-rss-mhjoybots-fuse-app-1
+    container_name: mirror-leech-telegram-bot-fuse-app-1
     command: bash start.sh
     restart: on-failure:5
     
@@ -159,7 +159,7 @@ services:
 
 The container image must include `archivemount` and `fuse` packages along with the Python runtime dependencies.
 
-Location: `/root/Anasy-RSS-MHJoyBots-FUSE/Dockerfile`
+Location: `/root/mirror-leech-telegram-bot-fuse/Dockerfile`
 
 ```dockerfile
 FROM anasty17/mltb:latest
@@ -294,11 +294,11 @@ To guarantee automatic recovery across host reboots, kernel updates, or unexpect
 
 ### 3.1 Systemd Unit File Configuration
 
-Create `/etc/systemd/system/anasy-rss-mhjoybots-fuse.service`:
+Create `/etc/systemd/system/mirror-leech-telegram-bot-fuse.service`:
 
 ```ini
 [Unit]
-Description=Anasy RSS MHJoyBots FUSE Docker Compose Service
+Description=mirror-leech-telegram-bot-fuse Docker Compose Service
 Requires=docker.service
 After=docker.service network-online.target local-fs.target
 Wants=network-online.target
@@ -307,7 +307,7 @@ ConditionPathIsMountPoint=/srv/bot-storage
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/root/Anasy-RSS-MHJoyBots-FUSE
+WorkingDirectory=/root/mirror-leech-telegram-bot-fuse
 
 # Ensure kernel module is loaded
 ExecStartPre=/usr/sbin/modprobe fuse
@@ -346,16 +346,16 @@ WantedBy=multi-user.target
 systemctl daemon-reload
 
 # 2. Enable service on boot
-systemctl enable anasy-rss-mhjoybots-fuse.service
+systemctl enable mirror-leech-telegram-bot-fuse.service
 
 # 3. Start service
-systemctl start anasy-rss-mhjoybots-fuse.service
+systemctl start mirror-leech-telegram-bot-fuse.service
 
 # 4. Check status
-systemctl status anasy-rss-mhjoybots-fuse.service
+systemctl status mirror-leech-telegram-bot-fuse.service
 
 # 5. View service logs
-journalctl -u anasy-rss-mhjoybots-fuse.service -f
+journalctl -u mirror-leech-telegram-bot-fuse.service -f
 ```
 
 ---
@@ -394,9 +394,9 @@ The host runs multiple services. Verify port allocations to avoid collisions:
 | `8087/tcp` | Reasoning Proxy | `127.0.0.1:8087` | Loopback only |
 | `8090/tcp` | SearXNG Host Bridge | `127.0.0.1:8090` | Loopback only |
 | `3001/tcp` | Uptime Kuma | `127.0.0.1:3001` | Loopback only |
-| **No Host Ports** | **Anasy FUSE Bot** | **Docker Bridge** | **Uses Telegram Long Polling (MTProto outgoing). Does not require inbound published host ports.** |
+| **No Host Ports** | **mirror-leech-telegram-bot-fuse** | **Docker Bridge** | **Uses Telegram Long Polling (MTProto outgoing). Does not require inbound published host ports.** |
 
-*Important Rule:* If enabling web search or web dashboard inside `Anasy-RSS-MHJoyBots-FUSE` in the future:
+*Important Rule:* If enabling web search or web dashboard inside `mirror-leech-telegram-bot-fuse` in the future:
 - Map internal port `80` to an unassigned port like `127.0.0.1:8072:80` or `0.0.0.0:8072:80`.
 - **Never** bind host port `71` or `8071` if another bot or service is already using those ports.
 
@@ -448,14 +448,15 @@ ls -la /dev/fuse
 
 ### 5.2 Phase 2: Environment Variables & Secrets Configuration
 
-1. Navigate to the repository root:
+1. Clone the repository and navigate to root:
    ```bash
-   cd /root/Anasy-RSS-MHJoyBots-FUSE
+   git clone https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse.git /root/mirror-leech-telegram-bot-fuse
+   cd /root/mirror-leech-telegram-bot-fuse
    ```
 
 2. Populate `config.env` with required variables:
    ```bash
-   cat << 'EOF' > /root/Anasy-RSS-MHJoyBots-FUSE/config.env
+   cat << 'EOF' > /root/mirror-leech-telegram-bot-fuse/config.env
    BOT_TOKEN = "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
    TELEGRAM_API = "1234567"
    TELEGRAM_HASH = "0123456789abcdef0123456789abcdef"
@@ -473,16 +474,16 @@ ls -la /dev/fuse
 
 3. Sync authentication credentials to host storage:
    ```bash
-   cp /root/Anasy-RSS-MHJoyBots-FUSE/token.pickle /srv/bot-storage/fuse_bot/token.pickle
-   cp /root/Anasy-RSS-MHJoyBots-FUSE/credentials.json /srv/bot-storage/fuse_bot/credentials.json
-   cp /root/Anasy-RSS-MHJoyBots-FUSE/cookies.txt /srv/bot-storage/fuse_bot/cookies.txt
-   cp /root/Anasy-RSS-MHJoyBots-FUSE/.netrc /srv/bot-storage/fuse_bot/.netrc
+   cp /root/mirror-leech-telegram-bot-fuse/token.pickle /srv/bot-storage/fuse_bot/token.pickle
+   cp /root/mirror-leech-telegram-bot-fuse/credentials.json /srv/bot-storage/fuse_bot/credentials.json
+   cp /root/mirror-leech-telegram-bot-fuse/cookies.txt /srv/bot-storage/fuse_bot/cookies.txt
+   cp /root/mirror-leech-telegram-bot-fuse/.netrc /srv/bot-storage/fuse_bot/.netrc
    ```
 
 ### 5.3 Phase 3: Building and Starting the Container
 
 ```bash
-cd /root/Anasy-RSS-MHJoyBots-FUSE
+cd /root/mirror-leech-telegram-bot-fuse
 
 # Build image without cache to guarantee fresh binary dependencies
 docker compose build --no-cache
@@ -497,31 +498,31 @@ Execute the following verification commands to certify operational readiness:
 
 #### Verification 1: Container Status & Health
 ```bash
-docker ps --filter name=anasy-rss-mhjoybots-fuse-app-1 --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}"
+docker ps --filter name=mirror-leech-telegram-bot-fuse-app-1 --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}"
 ```
 *Expected: Status is `Up ...`.*
 
 #### Verification 2: Storage Volume Mounts
 ```bash
-docker inspect anasy-rss-mhjoybots-fuse-app-1 --format '{{range .Mounts}}{{println .Source "->" .Destination}}{{end}}'
+docker inspect mirror-leech-telegram-bot-fuse-app-1 --format '{{range .Mounts}}{{println .Source "->" .Destination}}{{end}}'
 ```
 *Expected: `/srv/bot-storage/fuse_bot/downloads -> /app/downloads` and related volumes appear.*
 
 #### Verification 3: Disk Space & In-Container Mount Checks
 ```bash
-docker exec anasy-rss-mhjoybots-fuse-app-1 df -h /app/downloads
+docker exec mirror-leech-telegram-bot-fuse-app-1 df -h /app/downloads
 ```
 *Expected: Shows `/dev/vda4` mounted with ~84G size and ~47G available.*
 
 #### Verification 4: In-Container FUSE Capability Test
 ```bash
-docker exec -it anasy-rss-mhjoybots-fuse-app-1 bash -c "which archivemount && ls -la /dev/fuse"
+docker exec -it mirror-leech-telegram-bot-fuse-app-1 bash -c "which archivemount && ls -la /dev/fuse"
 ```
 *Expected: `/usr/bin/archivemount` exists and `/dev/fuse` is accessible.*
 
 #### Verification 5: Live Bot Startup Logs
 ```bash
-docker logs anasy-rss-mhjoybots-fuse-app-1 --tail 50
+docker logs mirror-leech-telegram-bot-fuse-app-1 --tail 50
 ```
 *Expected logs:*
 ```text
@@ -540,27 +541,27 @@ Because `/app/downloads` and configuration files are mounted from host directori
 
 #### Method A: Rapid Hot-Reload (Direct File Sync)
 ```bash
-cd /root/Anasy-RSS-MHJoyBots-FUSE
+cd /root/mirror-leech-telegram-bot-fuse
 
 # 1. Compile modified files on host
 python3 -m py_compile bot/modules/zip_selector.py bot/helper/common.py
 
 # 2. Copy updated files into running container
-docker cp bot/modules/zip_selector.py anasy-rss-mhjoybots-fuse-app-1:/app/bot/modules/zip_selector.py
-docker cp bot/helper/common.py anasy-rss-mhjoybots-fuse-app-1:/app/bot/helper/common.py
-docker cp bot/helper/listeners/task_listener.py anasy-rss-mhjoybots-fuse-app-1:/app/bot/helper/listeners/task_listener.py
-docker cp bot/core/handlers.py anasy-rss-mhjoybots-fuse-app-1:/app/bot/core/handlers.py
+docker cp bot/modules/zip_selector.py mirror-leech-telegram-bot-fuse-app-1:/app/bot/modules/zip_selector.py
+docker cp bot/helper/common.py mirror-leech-telegram-bot-fuse-app-1:/app/bot/helper/common.py
+docker cp bot/helper/listeners/task_listener.py mirror-leech-telegram-bot-fuse-app-1:/app/bot/helper/listeners/task_listener.py
+docker cp bot/core/handlers.py mirror-leech-telegram-bot-fuse-app-1:/app/bot/core/handlers.py
 
 # 3. Clean in-container bytecode caches
-docker exec anasy-rss-mhjoybots-fuse-app-1 rm -rf /app/bot/__pycache__ /app/bot/helper/__pycache__
+docker exec mirror-leech-telegram-bot-fuse-app-1 rm -rf /app/bot/__pycache__ /app/bot/helper/__pycache__
 
 # 4. Restart container
-docker restart anasy-rss-mhjoybots-fuse-app-1
+docker restart mirror-leech-telegram-bot-fuse-app-1
 ```
 
 #### Method B: Full Clean Rebuild
 ```bash
-cd /root/Anasy-RSS-MHJoyBots-FUSE
+cd /root/mirror-leech-telegram-bot-fuse
 docker compose build
 docker compose up -d --force-recreate
 ```
@@ -574,7 +575,7 @@ If a download task crashes or is forcibly terminated while an archive is mounted
 #### Resolution Command
 ```bash
 # Find and unmount any orphaned FUSE points inside container
-docker exec anasy-rss-mhjoybots-fuse-app-1 bash -c '
+docker exec mirror-leech-telegram-bot-fuse-app-1 bash -c '
 for mnt in $(mount | grep archivemount | awk "{print \$3}"); do
     echo "Unmounting stale mount: $mnt"
     fusermount -u -z "$mnt" || umount -l "$mnt"
@@ -582,7 +583,7 @@ done
 '
 
 # Clean orphaned working directories
-docker exec anasy-rss-mhjoybots-fuse-app-1 bash -c '
+docker exec mirror-leech-telegram-bot-fuse-app-1 bash -c '
 find /app/downloads -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} + 2>/dev/null || true
 '
 ```
@@ -593,7 +594,7 @@ If the FUSE bot container encounters an unrecoverable failure:
 
 ```bash
 # 1. Stop FUSE bot
-docker compose -f /root/Anasy-RSS-MHJoyBots-FUSE/docker-compose.yml down
+docker compose -f /root/mirror-leech-telegram-bot-fuse/docker-compose.yml down
 
 # 2. Verify previous container or host services are unaffected
 docker ps

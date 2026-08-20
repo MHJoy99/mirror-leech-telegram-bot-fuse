@@ -80,7 +80,7 @@ class TelegraphHelper:
 
 
 telegraph = TelegraphHelper(
-    "MHJoyBots", "https://github.com/MHJoy99/Anasy-motion-new"
+    "MHJoyBots", "https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse"
 )
 
 print(__name__)

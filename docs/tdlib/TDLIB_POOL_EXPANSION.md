@@ -6,7 +6,7 @@
 [![Scaling](https://img.shields.io/badge/Scaling-Zero--Collision%20Indexing-success?style=for-the-badge&logo=prometheus&logoColor=white)](TDLIB_POOL_SETUP.md)
 [![License](https://img.shields.io/badge/License-GPL--3.0-blue?style=for-the-badge&logo=gnu&logoColor=white)](LICENSE)
 
-*Operational runbook for expanding the TDLib userbot pool, provisioning incremental database instances without downtime or index collisions.*
+*Operational runbook for expanding the TDLib userbot pool in mirror-leech-telegram-bot-fuse (MHJoy99/mirror-leech-telegram-bot-fuse), provisioning incremental database instances without downtime or index collisions.*
 
 </div>
 
@@ -42,7 +42,7 @@ Executing: python3 setup_tdlib_pool.py 3 /app/tdlib_user
 Attach to the running container and invoke `setup_tdlib_pool.py` with the requested expansion count:
 
 ```bash
-docker exec -it anasy-rss-mhjoybots-fuse-app-1 bash -c "source /app/mltbenv/bin/activate && python3 setup_tdlib_pool.py 4 /app/tdlib_user"
+docker exec -it mirror-leech-telegram-bot-fuse-app-1 bash -c "source /app/mltbenv/bin/activate && python3 setup_tdlib_pool.py 4 /app/tdlib_user"
 ```
 
 ### Step 2: Complete Authentication Prompts
@@ -61,7 +61,7 @@ Press Enter for next account, or type stop to end:
 
 ### Step 3: Update Configuration File
 
-Append the generated list to `TDLIB_USER_DB_PATHS` in `/root/Anasy-RSS-MHJoyBots-FUSE/config.py`:
+Append the generated list to `TDLIB_USER_DB_PATHS` in `/root/mirror-leech-telegram-bot-fuse/config.py`:
 
 ```python
 # Updated TDLib Pool Configuration

@@ -1,7 +1,7 @@
 # System Architecture & Live-Ops Reference
 
 **Updated:** 2026-08-20  
-**Project:** `Anasy-RSS-MHJoyBots-FUSE` (Production Telegram Mirror/Leech Bot Fork based on `python-aria-mirror-bot`)  
+**Project:** `mirror-leech-telegram-bot-fuse` (Production Telegram Mirror/Leech Bot Fork based on `python-aria-mirror-bot`)  
 **Host Environment:** Ubuntu Linux 6.8.0-138-generic x64 (`/srv/bot-storage` on `/dev/vda4 84G`, 47G free baseline)
 
 ---
@@ -14,7 +14,7 @@ This file is the primary reference for the container architecture, live bot oper
 
 | Container Name | Purpose | Base Image / Port Bindings | Host Mount Directory | Container Target |
 |---|---|---|---|---|
-| `anasy-fuse-bot` | **FUSE Zero-Storage & Telegram ZIP Picker Bot** | Docker Image / Isolated (No port conflicts) | `/srv/bot-storage/fuse_bot/` | `/app/` |
+| `mltb-fuse-bot` | **FUSE Zero-Storage & Telegram ZIP Picker Bot** | Docker Image / Isolated (No port conflicts) | `/srv/bot-storage/fuse_bot/` | `/app/` |
 | `mltb-container` | Production Mirror Bot | `mltb-container-image` / Isolated ports | `/srv/bot-storage/fuse_bot/app` | `/app` |
 | `facebook-chatbot` | Facebook Messenger Webhook Service | Python Gunicorn / `0.0.0.0:5050->5050` | Standalone Docker Volume | `/app` |
 | `support-ticket-app` | Customer Support & Ticketing Engine | Support App Stack / `0.0.0.0:3000` | Postgres + Redis Stack | `/app` |
@@ -97,35 +97,35 @@ This file is the primary reference for the container architecture, live bot oper
 ### 4.1 Synchronizing Code & Restarting the FUSE Bot
 ```bash
 # 1. Verify syntax of modified source files
-python3 -m py_compile /root/Anasy-RSS-MHJoyBots-FUSE/bot/modules/zip_selector.py \
-                      /root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/listeners/task_listener.py \
-                      /root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/common.py \
-                      /root/Anasy-RSS-MHJoyBots-FUSE/bot/core/handlers.py
+python3 -m py_compile /root/mirror-leech-telegram-bot-fuse/bot/modules/zip_selector.py \
+                      /root/mirror-leech-telegram-bot-fuse/bot/helper/listeners/task_listener.py \
+                      /root/mirror-leech-telegram-bot-fuse/bot/helper/common.py \
+                      /root/mirror-leech-telegram-bot-fuse/bot/core/handlers.py
 
 # 2. Synchronize files into running container
-docker cp /root/Anasy-RSS-MHJoyBots-FUSE/bot/modules/zip_selector.py anasy-rss-mhjoybots-fuse-app-1:/app/bot/modules/zip_selector.py
-docker cp /root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/listeners/task_listener.py anasy-rss-mhjoybots-fuse-app-1:/app/bot/helper/listeners/task_listener.py
-docker cp /root/Anasy-RSS-MHJoyBots-FUSE/bot/helper/common.py anasy-rss-mhjoybots-fuse-app-1:/app/bot/helper/common.py
-docker cp /root/Anasy-RSS-MHJoyBots-FUSE/bot/core/handlers.py anasy-rss-mhjoybots-fuse-app-1:/app/bot/core/handlers.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/modules/zip_selector.py mirror-leech-fuse-app-1:/app/bot/modules/zip_selector.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/helper/listeners/task_listener.py mirror-leech-fuse-app-1:/app/bot/helper/listeners/task_listener.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/helper/common.py mirror-leech-fuse-app-1:/app/bot/helper/common.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/core/handlers.py mirror-leech-fuse-app-1:/app/bot/core/handlers.py
 
 # 3. Purge bytecode caches and restart container
-docker exec anasy-rss-mhjoybots-fuse-app-1 find /app/bot -name "__pycache__" -exec rm -rf {} +
-docker restart anasy-rss-mhjoybots-fuse-app-1
+docker exec mirror-leech-fuse-app-1 find /app/bot -name "__pycache__" -exec rm -rf {} +
+docker restart mirror-leech-fuse-app-1
 
 # 4. Verify clean boot in logs
 sleep 4
-docker logs anasy-rss-mhjoybots-fuse-app-1 --tail 30 | grep "Bot Started"
+docker logs mirror-leech-fuse-app-1 --tail 30 | grep "Bot Started"
 ```
 
 ### 4.2 Tailing Live Logs
 ```bash
-docker logs anasy-rss-mhjoybots-fuse-app-1 --tail 100 --follow | grep -E "Aria2Download|onDownloadComplete|FUSE extract|Zip picker|Streaming split|Telegram upload|Leech Completed|Leech mode"
+docker logs mirror-leech-fuse-app-1 --tail 100 --follow | grep -E "Aria2Download|onDownloadComplete|FUSE extract|Zip picker|Streaming split|Telegram upload|Leech Completed|Leech mode"
 ```
 
 ### 4.3 Emergency FUSE Unmount & Space Recovery
 ```bash
 # Unmount all active archivemount points
-docker exec anasy-fuse-bot bash -c 'for m in $(grep archivemount /proc/mounts | awk "{print \$2}"); do fusermount -uz "$m"; done'
+docker exec mltb-fuse-bot bash -c 'for m in $(grep archivemount /proc/mounts | awk "{print \$2}"); do fusermount -uz "$m"; done'
 
 # Clean host task downloads directory
 rm -rf /srv/bot-storage/fuse_bot/downloads/* # or /path/to/storage/fuse_bot/downloads/*
