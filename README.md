@@ -73,6 +73,8 @@ The diagram below illustrates the end-to-end execution pipeline from user comman
 
 ![System Architecture & Topology Diagram](docs/assets/architecture.svg)
 
+https://github.com/user-attachments/assets/promo-video.mp4
+
 </div>
 
 ### Virtual VFS Mount & Streaming Ingress Pipeline
