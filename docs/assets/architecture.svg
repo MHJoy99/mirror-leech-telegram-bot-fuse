@@ -1,0 +1,486 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 840" width="100%" height="100%">
+  <defs>
+    <!-- Dark Mode Canvas Gradient -->
+    <linearGradient id="archBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070a14" />
+      <stop offset="50%" stop-color="#0d1527" />
+      <stop offset="100%" stop-color="#050811" />
+    </linearGradient>
+
+    <!-- Header & Title Gradients -->
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f5ff" />
+      <stop offset="50%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+
+    <!-- Stage Box Gradient - Stage 1 (Ingestion) -->
+    <linearGradient id="stage1Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+
+    <!-- Glow & Shadow Filters -->
+    <filter id="softGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="boxShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#000000" flood-opacity="0.6" />
+    </filter>
+
+    <!-- Arrow Markers -->
+    <marker id="arrowCyan" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#00f5ff" />
+    </marker>
+
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#c084fc" />
+    </marker>
+
+    <marker id="arrowPink" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#f472b6" />
+    </marker>
+
+    <marker id="arrowEmerald" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#34d399" />
+    </marker>
+
+    <marker id="arrowAmber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#fbbf24" />
+    </marker>
+
+    <!-- Background Tech Grid Pattern -->
+    <pattern id="archGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.6" stroke-opacity="0.5" />
+    </pattern>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1280" height="840" fill="url(#archBg)" />
+  <rect width="1280" height="840" fill="url(#archGrid)" />
+
+  <!-- Ambient Light Highlights -->
+  <circle cx="200" cy="180" r="180" fill="#00f5ff" fill-opacity="0.04" filter="url(#softGlow)" />
+  <circle cx="640" cy="400" r="220" fill="#a855f7" fill-opacity="0.05" filter="url(#softGlow)" />
+  <circle cx="1080" cy="500" r="180" fill="#ec4899" fill-opacity="0.04" filter="url(#softGlow)" />
+
+  <!-- Main Canvas Border -->
+  <rect x="20" y="20" width="1240" height="800" rx="16" fill="none" stroke="#334155" stroke-width="1.2" stroke-opacity="0.6" />
+  
+  <!-- Corner Tech Accents -->
+  <path d="M 20 50 L 20 20 L 50 20" fill="none" stroke="#00f5ff" stroke-width="2.5" />
+  <path d="M 1260 50 L 1260 20 L 1230 20" fill="none" stroke="#00f5ff" stroke-width="2.5" />
+  <path d="M 20 790 L 20 820 L 50 820" fill="none" stroke="#ec4899" stroke-width="2.5" />
+  <path d="M 1260 790 L 1260 820 L 1230 820" fill="none" stroke="#ec4899" stroke-width="2.5" />
+
+  <!-- ========================================== -->
+  <!-- HEADER SECTION                             -->
+  <!-- ========================================== -->
+  <g transform="translate(640, 56)">
+    <text x="0" y="0" text-anchor="middle" fill="url(#headerGrad)" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Montserrat', sans-serif" font-size="28" font-weight="900" letter-spacing="2">
+      MIRROR-LEECH-FUSE ARCHITECTURE
+    </text>
+    <text x="0" y="26" text-anchor="middle" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13.5" font-weight="500">
+      Complete End-to-End Zero-Double-Storage &amp; Multi-Session Pipeline
+    </text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- STEP 1: ARCHIVE INGESTION                  -->
+  <!-- ========================================== -->
+  <g transform="translate(50, 110)">
+    <!-- Stage Box -->
+    <rect x="0" y="0" width="210" height="420" rx="12" fill="url(#stage1Grad)" stroke="#00f5ff" stroke-width="1.5" stroke-opacity="0.8" filter="url(#boxShadow)" />
+    
+    <!-- Stage Header Badge -->
+    <path d="M 0 12 C 0 5.37 5.37 0 12 0 L 198 0 C 204.63 0 210 5.37 210 12 L 210 40 L 0 40 Z" fill="#00f5ff" fill-opacity="0.15" />
+    <rect x="12" y="10" width="22" height="20" rx="4" fill="#00f5ff" />
+    <text x="23" y="24" text-anchor="middle" fill="#04101e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800">1</text>
+    <text x="44" y="25" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13.5" font-weight="700">Archive Ingestion</text>
+
+    <!-- Content Items -->
+    <!-- Trigger -->
+    <g transform="translate(14, 55)">
+      <rect x="0" y="0" width="182" height="64" rx="8" fill="#1e293b" fill-opacity="0.9" stroke="#334155" stroke-width="1" />
+      <text x="10" y="20" fill="#38bdf8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace" font-size="11" font-weight="700">TRIGGER COMMAND</text>
+      <text x="10" y="38" fill="#e2e8f0" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="600">/leech url -e -s</text>
+      <text x="10" y="52" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">Extraction (-e) + Select (-s)</text>
+    </g>
+
+    <!-- Engines List -->
+    <g transform="translate(14, 130)">
+      <rect x="0" y="0" width="182" height="155" rx="8" fill="#0b1329" fill-opacity="0.8" stroke="#334155" stroke-width="1" />
+      <text x="10" y="20" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" letter-spacing="0.5">INGESTION ENGINES</text>
+
+      <!-- Engine 1 -->
+      <circle cx="16" cy="38" r="3" fill="#00f5ff" />
+      <text x="26" y="42" fill="#f1f5f9" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="600">aria2c / Direct HTTP</text>
+
+      <!-- Engine 2 -->
+      <circle cx="16" cy="62" r="3" fill="#00f5ff" />
+      <text x="26" y="66" fill="#f1f5f9" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="600">qBittorrent (Torrents)</text>
+
+      <!-- Engine 3 -->
+      <circle cx="16" cy="86" r="3" fill="#00f5ff" />
+      <text x="26" y="90" fill="#f1f5f9" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="600">Sabnzbd (Usenet/NZB)</text>
+
+      <!-- Engine 4 -->
+      <circle cx="16" cy="110" r="3" fill="#00f5ff" />
+      <text x="26" y="114" fill="#f1f5f9" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="600">JDownloader2 &amp; Mega</text>
+
+      <!-- Engine 5 -->
+      <circle cx="16" cy="134" r="3" fill="#00f5ff" />
+      <text x="26" y="138" fill="#f1f5f9" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="600">yt-dlp (1000+ sites)</text>
+    </g>
+
+    <!-- Output Artifact -->
+    <g transform="translate(14, 296)">
+      <rect x="0" y="0" width="182" height="110" rx="8" fill="#1e293b" fill-opacity="0.9" stroke="#00f5ff" stroke-width="1" stroke-dasharray="3,2" />
+      <text x="10" y="20" fill="#00f5ff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700">DOWNLOADED RAW ARCHIVE</text>
+      <text x="10" y="38" fill="#f8fafc" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="600">archive.zip (33GB)</text>
+      
+      <!-- Metrics Pill -->
+      <rect x="10" y="50" width="162" height="48" rx="6" fill="#091428" />
+      <text x="16" y="68" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5">Physical Disk Usage:</text>
+      <text x="16" y="86" fill="#38bdf8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700">33.0 GB (Baseline)</text>
+    </g>
+  </g>
+
+  <!-- Arrow 1 -> 2 -->
+  <g>
+    <path d="M 260 320 L 298 320" fill="none" stroke="#00f5ff" stroke-width="2.5" marker-end="url(#arrowCyan)" />
+    <text x="280" y="310" text-anchor="middle" fill="#00f5ff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600">MOUNT</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- STEP 2: FUSE VFS MOUNT                     -->
+  <!-- ========================================== -->
+  <g transform="translate(305, 110)">
+    <!-- Stage Box -->
+    <rect x="0" y="0" width="210" height="420" rx="12" fill="url(#stage1Grad)" stroke="#8b5cf6" stroke-width="1.5" stroke-opacity="0.8" filter="url(#boxShadow)" />
+    
+    <!-- Stage Header Badge -->
+    <path d="M 0 12 C 0 5.37 5.37 0 12 0 L 198 0 C 204.63 0 210 5.37 210 12 L 210 40 L 0 40 Z" fill="#8b5cf6" fill-opacity="0.15" />
+    <rect x="12" y="10" width="22" height="20" rx="4" fill="#8b5cf6" />
+    <text x="23" y="24" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800">2</text>
+    <text x="44" y="25" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13.5" font-weight="700">FUSE VFS Mount</text>
+
+    <!-- Mount Command Box -->
+    <g transform="translate(14, 55)">
+      <rect x="0" y="0" width="182" height="95" rx="8" fill="#17152c" fill-opacity="0.9" stroke="#8b5cf6" stroke-width="1" />
+      <text x="10" y="18" fill="#c084fc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" font-weight="700">ARCHIVEMOUNT ENGINE</text>
+      <rect x="8" y="26" width="166" height="38" rx="4" fill="#0d0a1a" />
+      <text x="12" y="40" fill="#a78bfa" font-family="'JetBrains Mono', monospace" font-size="9.5">archivemount</text>
+      <text x="12" y="54" fill="#cbd5e1" font-family="'JetBrains Mono', monospace" font-size="9.5">-o readonly,nosave</text>
+      <text x="10" y="80" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">Target: <tspan fill="#f1f5f9">.mnt_xxx/ (Virtual VFS)</tspan></text>
+    </g>
+
+    <!-- Core Benefits Badge -->
+    <g transform="translate(14, 160)">
+      <rect x="0" y="0" width="182" height="125" rx="8" fill="#0f172a" fill-opacity="0.9" stroke="#334155" stroke-width="1" />
+      <text x="10" y="20" fill="#c084fc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700">VFS ADVANTAGES</text>
+
+      <g transform="translate(10, 32)">
+        <polygon points="4 1 8 5 4 9 0 5" fill="#a855f7" />
+        <text x="14" y="7" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600">Zero Unpack To Disk</text>
+        <text x="14" y="20" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">No 35GB disk duplicate</text>
+      </g>
+
+      <g transform="translate(10, 68)">
+        <polygon points="4 1 8 5 4 9 0 5" fill="#a855f7" />
+        <text x="14" y="7" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600">Instant Millisecond Mount</text>
+        <text x="14" y="20" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">Zero wait for decompression</text>
+      </g>
+
+      <g transform="translate(10, 104)">
+        <polygon points="4 1 8 5 4 9 0 5" fill="#a855f7" />
+        <text x="14" y="7" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600">Direct Inode Indexing</text>
+      </g>
+    </g>
+
+    <!-- Disk Comparison Metric -->
+    <g transform="translate(14, 296)">
+      <rect x="0" y="0" width="182" height="110" rx="8" fill="#1e1b4b" fill-opacity="0.6" stroke="#8b5cf6" stroke-width="1" />
+      <text x="10" y="18" fill="#c084fc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700">SAVINGS BENCHMARK</text>
+      
+      <text x="10" y="38" fill="#ef4444" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5">Legacy 7z: <tspan font-weight="700">~68.2 GB (Crash)</tspan></text>
+      <text x="10" y="56" fill="#10b981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5">FUSE VFS: <tspan font-weight="700">33.0 GB (0 Extra)</tspan></text>
+      
+      <rect x="10" y="68" width="162" height="30" rx="4" fill="#047857" fill-opacity="0.3" stroke="#10b981" stroke-width="1" />
+      <text x="91" y="88" text-anchor="middle" fill="#34d399" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700">51.6% DISK SAVINGS</text>
+    </g>
+  </g>
+
+  <!-- Arrow 2 -> 3 -->
+  <g>
+    <path d="M 515 320 L 553 320" fill="none" stroke="#a855f7" stroke-width="2.5" marker-end="url(#arrowPurple)" />
+    <text x="534" y="310" text-anchor="middle" fill="#c084fc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600">INSPECT</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- STEP 3: TELEGRAM ZIP PICKER                -->
+  <!-- ========================================== -->
+  <g transform="translate(560, 110)">
+    <!-- Stage Box -->
+    <rect x="0" y="0" width="210" height="420" rx="12" fill="url(#stage1Grad)" stroke="#ec4899" stroke-width="1.5" stroke-opacity="0.8" filter="url(#boxShadow)" />
+    
+    <!-- Stage Header Badge -->
+    <path d="M 0 12 C 0 5.37 5.37 0 12 0 L 198 0 C 204.63 0 210 5.37 210 12 L 210 40 L 0 40 Z" fill="#ec4899" fill-opacity="0.15" />
+    <rect x="12" y="10" width="22" height="20" rx="4" fill="#ec4899" />
+    <text x="23" y="24" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800">3</text>
+    <text x="44" y="25" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13.5" font-weight="700">Telegram ZIP Picker</text>
+
+    <!-- Mockup Telegram UI -->
+    <g transform="translate(12, 52)">
+      <rect x="0" y="0" width="186" height="230" rx="8" fill="#182235" stroke="#334155" stroke-width="1" />
+      
+      <!-- Mockup Header -->
+      <rect x="0" y="0" width="186" height="34" rx="8" fill="#0f172a" />
+      <text x="10" y="16" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" font-weight="700">Select files from ZIP</text>
+      <text x="10" y="28" fill="#38bdf8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9">Selected: 3/16 (5.8 GB / 33.2 GB)</text>
+
+      <!-- Mockup File Buttons -->
+      <g transform="translate(8, 40)">
+        <!-- Item 1 (Selected) -->
+        <rect x="0" y="0" width="170" height="26" rx="4" fill="#0369a1" fill-opacity="0.4" stroke="#0284c7" stroke-width="1" />
+        <text x="8" y="17" fill="#f8fafc" font-family="'JetBrains Mono', monospace" font-size="9.5">✅ [2.2G] Episode 01.mkv</text>
+
+        <!-- Item 2 (Selected) -->
+        <rect x="0" y="30" width="170" height="26" rx="4" fill="#0369a1" fill-opacity="0.4" stroke="#0284c7" stroke-width="1" />
+        <text x="8" y="47" fill="#f8fafc" font-family="'JetBrains Mono', monospace" font-size="9.5">✅ [2.1G] Episode 02.mkv</text>
+
+        <!-- Item 3 (Unselected) -->
+        <rect x="0" y="60" width="170" height="26" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1" />
+        <text x="8" y="77" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="9.5">⬜ [2.3G] Episode 03.mkv</text>
+
+        <!-- Item 4 (Selected) -->
+        <rect x="0" y="90" width="170" height="26" rx="4" fill="#0369a1" fill-opacity="0.4" stroke="#0284c7" stroke-width="1" />
+        <text x="8" y="107" fill="#f8fafc" font-family="'JetBrains Mono', monospace" font-size="9.5">✅ [1.5G] Episode 04.mkv</text>
+
+        <!-- Navigation Row -->
+        <g transform="translate(0, 122)">
+          <rect x="0" y="0" width="52" height="24" rx="4" fill="#334155" />
+          <text x="26" y="16" text-anchor="middle" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5">◀ Prev</text>
+
+          <rect x="58" y="0" width="54" height="24" rx="4" fill="#334155" />
+          <text x="85" y="16" text-anchor="middle" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5">1 / 2</text>
+
+          <rect x="118" y="0" width="52" height="24" rx="4" fill="#334155" />
+          <text x="144" y="16" text-anchor="middle" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5">Next ▶</text>
+        </g>
+
+        <!-- Action Row -->
+        <g transform="translate(0, 152)">
+          <rect x="0" y="0" width="82" height="24" rx="4" fill="#059669" />
+          <text x="41" y="16" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700">✅ Done (3)</text>
+
+          <rect x="88" y="0" width="82" height="24" rx="4" fill="#dc2626" />
+          <text x="129" y="16" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="700">❌ Cancel</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Picker Feature Specs -->
+    <g transform="translate(14, 296)">
+      <rect x="0" y="0" width="182" height="110" rx="8" fill="#1e293b" fill-opacity="0.9" stroke="#ec4899" stroke-width="1" />
+      <text x="10" y="18" fill="#f472b6" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700">GUI ENGINE FEATURES</text>
+
+      <circle cx="16" cy="36" r="2.5" fill="#f472b6" />
+      <text x="24" y="40" fill="#e2e8f0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5">60s Auto-Done Countdown</text>
+
+      <circle cx="16" cy="58" r="2.5" fill="#f472b6" />
+      <text x="24" y="62" fill="#e2e8f0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5">Payload &lt; 64B TG Limit</text>
+
+      <circle cx="16" cy="80" r="2.5" fill="#f472b6" />
+      <text x="24" y="84" fill="#e2e8f0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5">Task Owner Auth Check</text>
+
+      <circle cx="16" cy="100" r="2.5" fill="#f472b6" />
+      <text x="24" y="103" fill="#e2e8f0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5">Selective Subset Streaming</text>
+    </g>
+  </g>
+
+  <!-- Arrow 3 -> 4 -->
+  <g>
+    <path d="M 770 320 L 808 320" fill="none" stroke="#ec4899" stroke-width="2.5" marker-end="url(#arrowPink)" />
+    <text x="789" y="310" text-anchor="middle" fill="#f472b6" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600">DISPATCH</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- STEP 4: PER-FILE SPLIT & STREAMING UPLOAD  -->
+  <!-- ========================================== -->
+  <g transform="translate(815, 110)">
+    <!-- Stage Box -->
+    <rect x="0" y="0" width="210" height="420" rx="12" fill="url(#stage1Grad)" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.8" filter="url(#boxShadow)" />
+    
+    <!-- Stage Header Badge -->
+    <path d="M 0 12 C 0 5.37 5.37 0 12 0 L 198 0 C 204.63 0 210 5.37 210 12 L 210 40 L 0 40 Z" fill="#10b981" fill-opacity="0.15" />
+    <rect x="12" y="10" width="22" height="20" rx="4" fill="#10b981" />
+    <text x="23" y="24" text-anchor="middle" fill="#04101e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800">4</text>
+    <text x="44" y="25" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13.5" font-weight="700">Split &amp; TDLib Pool</text>
+
+    <!-- Pipeline Items -->
+    <g transform="translate(14, 52)">
+      
+      <!-- Sub-step 1: Per-file Streaming -->
+      <rect x="0" y="0" width="182" height="74" rx="6" fill="#06281e" stroke="#10b981" stroke-width="1" />
+      <text x="8" y="18" fill="#34d399" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" font-weight="700">PER-FILE STREAMING SPLIT</text>
+      <text x="8" y="34" fill="#e2e8f0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">If File &gt; 2GB (4GB TG Prem):</text>
+      <text x="8" y="48" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5">Split chunk created on demand</text>
+      <text x="8" y="64" fill="#fcd34d" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" font-weight="600">Immediate chunk purge on send</text>
+
+      <!-- Sub-step 2: TDLib Multi-Session -->
+      <rect x="0" y="82" width="182" height="88" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1" />
+      <text x="8" y="100" fill="#34d399" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" font-weight="700">TDLIB POOL CONCURRENCY</text>
+      <g transform="translate(8, 110)">
+        <rect x="0" y="0" width="50" height="20" rx="3" fill="#0284c7" />
+        <text x="25" y="14" text-anchor="middle" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="9">user_1</text>
+
+        <rect x="56" y="0" width="50" height="20" rx="3" fill="#0284c7" />
+        <text x="81" y="14" text-anchor="middle" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="9">user_2</text>
+
+        <rect x="112" y="0" width="50" height="20" rx="3" fill="#0284c7" />
+        <text x="137" y="14" text-anchor="middle" fill="#ffffff" font-family="'JetBrains Mono', monospace" font-size="9">user_N</text>
+      </g>
+      <text x="8" y="156" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5">Round-robin semaphore workers</text>
+
+      <!-- Sub-step 3: WZML Dynamic FFprobe -->
+      <rect x="0" y="178" width="182" height="68" rx="6" fill="#0b1329" stroke="#334155" stroke-width="1" />
+      <text x="8" y="196" fill="#34d399" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" font-weight="700">WZML DYNAMIC CAPTION</text>
+      <text x="8" y="214" fill="#e2e8f0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">ffprobe stream inspection:</text>
+      <text x="8" y="232" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5">1080p HEVC • 6CH AAC • Subtitles</text>
+    </g>
+
+    <!-- Peak Footprint Box -->
+    <g transform="translate(14, 308)">
+      <rect x="0" y="0" width="182" height="98" rx="8" fill="#064e3b" fill-opacity="0.4" stroke="#10b981" stroke-width="1" />
+      <text x="10" y="18" fill="#34d399" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700">PEAK DISK FOOTPRINT</text>
+      <text x="10" y="38" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5">Zip + 1 Active Split Chunk:</text>
+      <text x="10" y="60" fill="#34d399" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800">33.0 GB + 2.0 GB</text>
+      <text x="10" y="82" fill="#a7f3d0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">Total Peak = 35.0 GB (Safe!)</text>
+    </g>
+  </g>
+
+  <!-- Arrow 4 -> 5 -->
+  <g>
+    <path d="M 1025 320 L 1063 320" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrowEmerald)" />
+    <text x="1044" y="310" text-anchor="middle" fill="#34d399" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600">DELIVER</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- STEP 5: DUAL DESTINATIONS                  -->
+  <!-- ========================================== -->
+  <g transform="translate(1070, 110)">
+    <!-- Stage Box -->
+    <rect x="0" y="0" width="160" height="420" rx="12" fill="url(#stage1Grad)" stroke="#f59e0b" stroke-width="1.5" stroke-opacity="0.8" filter="url(#boxShadow)" />
+    
+    <!-- Stage Header Badge -->
+    <path d="M 0 12 C 0 5.37 5.37 0 12 0 L 148 0 C 154.63 0 160 5.37 160 12 L 160 40 L 0 40 Z" fill="#f59e0b" fill-opacity="0.15" />
+    <rect x="10" y="10" width="22" height="20" rx="4" fill="#f59e0b" />
+    <text x="21" y="24" text-anchor="middle" fill="#04101e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800">5</text>
+    <text x="38" y="25" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700">Dual Delivery</text>
+
+    <!-- Dest A: Telegram Primary -->
+    <g transform="translate(10, 52)">
+      <rect x="0" y="0" width="140" height="155" rx="8" fill="#0e2a47" fill-opacity="0.8" stroke="#0284c7" stroke-width="1" />
+      <rect x="8" y="8" width="20" height="20" rx="4" fill="#0284c7" />
+      <polygon points="12 18 24 12 21 24 18 20 18 24 15 20" fill="#ffffff" transform="scale(0.7) translate(2,2)" />
+      <text x="34" y="22" fill="#38bdf8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700">Telegram Leech</text>
+      
+      <text x="8" y="46" fill="#f1f5f9" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600">Primary Channel</text>
+      <text x="8" y="62" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5">• 4GB Premium Stream</text>
+      <text x="8" y="78" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5">• Custom Thumbnails</text>
+      <text x="8" y="94" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5">• Audio / Sub tracks</text>
+      <text x="8" y="110" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5">• Zero Flood Waits</text>
+      <rect x="8" y="122" width="124" height="24" rx="4" fill="#0284c7" fill-opacity="0.3" />
+      <text x="70" y="138" text-anchor="middle" fill="#38bdf8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" font-weight="700">INSTANT LEVERAGE</text>
+    </g>
+
+    <!-- Dest B: GDrive / Cloud Backup -->
+    <g transform="translate(10, 220)">
+      <rect x="0" y="0" width="140" height="186" rx="8" fill="#2d1e08" fill-opacity="0.8" stroke="#f59e0b" stroke-width="1" />
+      <rect x="8" y="8" width="20" height="20" rx="4" fill="#f59e0b" />
+      <text x="18" y="23" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="900">☁</text>
+      <text x="34" y="22" fill="#fbbf24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700">Cloud Backup</text>
+
+      <text x="8" y="46" fill="#f1f5f9" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600">Secondary Target</text>
+      <text x="8" y="62" fill="#fcd34d" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5">• Google Drive Team</text>
+      <text x="8" y="78" fill="#fcd34d" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5">• Service Account Rot</text>
+      <text x="8" y="94" fill="#fcd34d" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5">• Rclone (40+ remotes)</text>
+      <text x="8" y="110" fill="#fcd34d" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5">• Async Replicate</text>
+      
+      <rect x="8" y="124" width="124" height="48" rx="4" fill="#451a03" stroke="#b45309" stroke-width="1" />
+      <text x="70" y="142" text-anchor="middle" fill="#fbbf24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" font-weight="700">ISOLATION GUARD</text>
+      <text x="70" y="158" text-anchor="middle" fill="#d1d5db" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5">Skip on Leech Only</text>
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- BOTTOM PANEL: SYSTEM CLEANUP & LIFECYCLE   -->
+  <!-- ========================================== -->
+  <g transform="translate(50, 555)">
+    <!-- Cleanup Container Box -->
+    <rect x="0" y="0" width="1180" height="235" rx="12" fill="#0f172a" fill-opacity="0.9" stroke="#334155" stroke-width="1.2" filter="url(#boxShadow)" />
+
+    <!-- Cleanup Header -->
+    <path d="M 0 12 C 0 5.37 5.37 0 12 0 L 1168 0 C 1174.63 0 1180 5.37 1180 12 L 1180 38 L 0 38 Z" fill="#334155" fill-opacity="0.4" />
+    <text x="24" y="24" fill="#38bdf8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" letter-spacing="1">
+      AUTOMATED TEARDOWN, VFS UNMOUNT &amp; DISK RECOVERY LIFECYCLE
+    </text>
+    <text x="1156" y="24" text-anchor="end" fill="#94a3b8" font-family="'JetBrains Mono', monospace" font-size="11">
+      clean_download() • task_listener.py
+    </text>
+
+    <!-- Three Column Lifecycle Cards -->
+    <g transform="translate(20, 52)">
+      
+      <!-- Card 1: FUSE Unmount -->
+      <g transform="translate(0, 0)">
+        <rect x="0" y="0" width="360" height="162" rx="8" fill="#1e293b" stroke="#00f5ff" stroke-width="1" stroke-opacity="0.4" />
+        <rect x="12" y="12" width="24" height="24" rx="4" fill="#00f5ff" fill-opacity="0.2" />
+        <text x="24" y="28" text-anchor="middle" fill="#00f5ff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700">A</text>
+        <text x="46" y="29" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700">1. Virtual VFS Lazy Unmount</text>
+
+        <rect x="12" y="44" width="336" height="34" rx="4" fill="#091428" />
+        <text x="20" y="65" fill="#38bdf8" font-family="'JetBrains Mono', monospace" font-size="11">fusermount -uz .mnt_xxx/</text>
+        
+        <text x="14" y="98" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">• Dynamically scans <tspan fill="#00f5ff">/proc/mounts</tspan> table</text>
+        <text x="14" y="118" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">• Detaches FUSE inode tree cleanly</text>
+        <text x="14" y="138" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">• Eliminates dangling open descriptors</text>
+      </g>
+
+      <!-- Card 2: Workspace & Symlink Purge -->
+      <g transform="translate(390, 0)">
+        <rect x="0" y="0" width="360" height="162" rx="8" fill="#1e293b" stroke="#a855f7" stroke-width="1" stroke-opacity="0.4" />
+        <rect x="12" y="12" width="24" height="24" rx="4" fill="#a855f7" fill-opacity="0.2" />
+        <text x="24" y="28" text-anchor="middle" fill="#c084fc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700">B</text>
+        <text x="46" y="29" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700">2. Temporary Symlink &amp; Split Purge</text>
+
+        <rect x="12" y="44" width="336" height="34" rx="4" fill="#17152c" />
+        <text x="20" y="65" fill="#c084fc" font-family="'JetBrains Mono', monospace" font-size="11">rm -rf downloads/xxx/ _small_*/</text>
+
+        <text x="14" y="98" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">• Removes isolated single-file symlink dirs</text>
+        <text x="14" y="118" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">• Deletes completed split parts (.001, .002)</text>
+        <text x="14" y="138" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">• Prevents disk leak on task cancel / error</text>
+      </g>
+
+      <!-- Card 3: Storage Baseline Restoration -->
+      <g transform="translate(780, 0)">
+        <rect x="0" y="0" width="360" height="162" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1" stroke-opacity="0.4" />
+        <rect x="12" y="12" width="24" height="24" rx="4" fill="#10b981" fill-opacity="0.2" />
+        <text x="24" y="28" text-anchor="middle" fill="#34d399" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700">C</text>
+        <text x="46" y="29" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700">3. Disk Baseline Restored</text>
+
+        <rect x="12" y="44" width="336" height="34" rx="4" fill="#06281e" />
+        <text x="20" y="65" fill="#34d399" font-family="'JetBrains Mono', monospace" font-size="11">Available Disk: 47GB Free Baseline</text>
+
+        <text x="14" y="98" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">• Zero zombie processes remaining</text>
+        <text x="14" y="118" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">• Ready for next queued download task</text>
+        <text x="14" y="138" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">• Fully autonomous 24/7 production operation</text>
+      </g>
+
+    </g>
+  </g>
+
+</svg>

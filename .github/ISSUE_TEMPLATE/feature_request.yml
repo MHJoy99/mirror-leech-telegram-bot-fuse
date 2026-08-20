@@ -1,0 +1,78 @@
+name: Feature Request
+description: Suggest an enhancement, new capability, or optimization for mirror-leech-telegram-bot-fuse.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Thank you for proposing an enhancement!
+        Please share detailed context on the problem you are solving and how this improvement benefits users of `mirror-leech-telegram-bot-fuse`.
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement or Use Case
+      description: Is this feature request related to a problem, inefficiency, or missing workflow?
+      placeholder: E.g., "When processing nested split rar archives inside a mounted FUSE container, it would be useful to..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution & Specifications
+      description: Describe the solution or new feature you would like to see added.
+      placeholder: Detailed description of how the feature should behave, new commands, flags, or configuration options...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Describe any alternative designs, scripts, or workarounds you have considered.
+      placeholder: E.g., Using manual CLI unrar scripts or separate rclone post-hooks...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Target Subsystem
+      description: Which part of the architecture does this enhancement primarily target?
+      options:
+        - FUSE Virtual Filesystem (`archivemount` / zero-double-storage)
+        - Interactive Telegram ZIP Picker GUI (`zip_selector.py`)
+        - TDLib Multi-Session Concurrency Pool
+        - Leech & Telegram Uploader Engine
+        - Google Drive / Team Drive / Service Accounts
+        - Rclone Integration & Cloud Remotes
+        - Direct Download Engines (aria2, qBit, Sabnzbd, JDownloader, yt-dlp)
+        - Deployment, Docker & CI/CD
+        - Web Dashboard / REST API
+        - Documentation & Operational Tooling
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context, Mockups, or References
+      description: Add any mockups, diagrams, code references, or benchmark metrics here.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribution-readiness
+    attributes:
+      label: Contribution & Community Engagement
+      description: Please verify and check all applicable items.
+      options:
+        - label: I have verified this feature is not already supported or requested in existing issues/discussions.
+          required: true
+        - label: I am willing to test experimental builds or provide sample data if needed.
+          required: false
+        - label: I am interested in submitting a Pull Request to implement this feature.
+          required: false

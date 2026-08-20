@@ -1,0 +1,69 @@
+name: Support & Question
+description: Ask a configuration question, seek deployment help, or inquire about bot functionality.
+title: "[Question]: "
+labels: ["question", "support"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Need help configuring or running mirror-leech-telegram-bot-fuse?
+        Please check the following resources first:
+        - [Documentation Hub](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/tree/main/docs)
+        - [README & Operational Runbook](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse#readme)
+        - [GitHub Discussions Q&A](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/discussions)
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question or Support Request
+      description: Provide a clear and detailed explanation of what you need help with.
+      placeholder: E.g., How do I configure multiple TDLib userbot sessions with custom string sessions?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Topic Category
+      description: What category best fits your inquiry?
+      options:
+        - Configuration & Environment Variables (`config.env`)
+        - FUSE Virtual Filesystem & Storage Optimization (`archivemount`)
+        - TDLib Multi-Session Concurrency Pool & String Sessions
+        - Direct Download Engines (aria2c, qBittorrent, Sabnzbd, JDownloader, yt-dlp)
+        - Cloud Storage (Google Drive, Team Drives, Service Accounts, Rclone)
+        - Docker Deployment & Container Permissions (`/dev/fuse`)
+        - Bot Commands & Telegram UI Customization
+        - General Architecture & Maintenance
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Current Setup Context
+      description: Share details about your operating system, deployment environment, or relevant non-sensitive configuration settings.
+      placeholder: E.g., Ubuntu 24.04 LTS, Docker Compose, running with /dev/fuse mounted.
+    validations:
+      required: false
+
+  - type: textarea
+    id: attempted-solutions
+    attributes:
+      label: What Have You Tried?
+      description: Mention any troubleshooting steps, log reviews, or documentation sections you have already consulted.
+      placeholder: E.g., I reviewed the setup_tdlib_pool.py guide and tested generate_string_session.py...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Confirmation Checklist
+      description: Please verify the following before submitting.
+      options:
+        - label: I have checked the documentation, README, and existing discussions.
+          required: true
+        - label: I have made sure no private tokens, API hashes, passwords, or credentials are included in this issue.
+          required: true

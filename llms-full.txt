@@ -1,67 +1,509 @@
-# mirror-leech-telegram-bot-fuse — Complete Technical Knowledge Base
+# mirror-leech-telegram-bot-fuse — Complete Technical Knowledge Base & API Specification
 
-## Overview & Executive Summary
-
-mirror-leech-telegram-bot-fuse is an enterprise-grade Telegram mirror and leech engine written in Python 3.12+ (AsyncIO / Pyrogram / TDLib). It is designed to resolve disk exhaustion issues on storage-constrained Virtual Private Servers (VPS) when processing multi-gigabyte compressed archives.
-
-### The Double-Storage Bottleneck
-Legacy mirror/leech bots require downloading an archive (e.g. 33 GB `.zip`), fully extracting it to disk via `7z x` (requiring an additional 35 GB), and generating split parts (+20 GB), leading to peak storage usage exceeding 88 GB on an 84 GB SSD partition.
-
-### The FUSE Zero-Double-Storage Solution
-mirror-leech-telegram-bot-fuse mounts archive files directly into the Linux VFS using `archivemount -o readonly,nosave`. The archive's virtual file extents are read and decompressed on-the-fly directly into the splitting and upload pipelines. Peak disk usage is capped at `Archive Size + Single Active Split (~2.4 GB)`, achieving over 50% peak storage reduction and enabling concurrent tasks on budget VPS hardware.
+> Enterprise-Grade Telegram Mirror, Leech & Linux FUSE Zero-Double-Storage Engine with Multi-Session TDLib Concurrency Pooling and Fault-Tolerant Cloud Replication.
 
 ---
 
-## Key Modules and Functions
+## 1. Executive Summary & Architecture
 
-- `bot/helper/ext_utils/files_utils.py`: Contains `SevenZ.extract()` which mounts archives via `archivemount`, polls `/proc/mounts` for active mountpoints, and executes clean unmounts (`fusermount -uz`) in `clean_download()`.
-- `bot/modules/zip_selector.py`: Implements the interactive Telegram ZIP GUI picker with 8 items/page pagination, `<64B` callback keys (`zipsel <mid> <action> [args]`), 60-second AFK timeout fallback, and 3-tier authorization.
-- `bot/helper/common.py`: Implements `proceed_split_streaming()` for sequential on-the-fly splitting and uploading, `_picker_small_only` handling, and the `is_leech` guard preventing secondary Google Drive leaks during Telegram leech tasks.
-- `bot/core/tdlib_manager.py`: Manages the multi-session TDLib userbot cluster (`tdlib_user_2` through `tdlib_user_11`) with round-robin dispatching under concurrency locks.
-- `bot/helper/ext_utils/media_utils.py`: Renders smart WZML captions using `ffprobe` stream metadata, `langcodes` resolution, and subtitle stream detection.
+### 1.1 Problem Statement: The Double-Storage Bottleneck
+In legacy mirror and leech bot engines, processing multi-gigabyte compressed archives (`.zip`, `.tar`, `.7z`, `.rar`, `.iso`) requires downloading the archive, physically extracting its full contents to disk via utilities like `7z x`, and creating pre-split chunks before commencing upload. 
+
+```
+[Legacy Double-Storage Flow: Total Disk Peak ~88.2 GB]
+Download (32.8 GB .zip) ──▶ Full Disk Extract (+35.2 GB) ──▶ Upfront Splits (+20.2 GB)
+   Result: Instant ENOSPC failure on 84 GB SSD partitions.
+```
+
+### 1.2 The FUSE Zero-Double-Storage Solution
+`mirror-leech-telegram-bot-fuse` replaces physical extraction with dynamic Linux Virtual File System (VFS) mounting using `archivemount -o readonly,nosave`. The virtual file extents are streamed and decompressed on-the-fly directly into the streaming split and upload pipelines.
+
+```
+[FUSE Zero-Double-Storage Flow: Peak Disk Capped at ~35.2 GB]
+Download (32.8 GB .zip) ──▶ FUSE VFS Mount (.mnt_*) ──▶ Stream Single File Chunk (~2.4 GB) ──▶ Direct Upload & Purge
+   Result: >50% peak storage reduction, zero double-storage penalty.
+```
+
+### 1.3 Key Modules & Responsibilities
+- `bot/helper/listeners/task_listener.py`: Central lifecycle manager orchestrating downloads, extractions, splits, upload dispatching, status updates, and atomic teardown.
+- `bot/modules/zip_selector.py`: Interactive Telegram inline ZIP GUI picker featuring 8 items/page pagination, `<64B` callback keys, 60s auto-done timeout, and multi-tier authorization.
+- `bot/helper/ext_utils/files_utils.py`: Contains `SevenZ.extract()` for `archivemount` lifecycle management and `clean_download()` with active `/proc/mounts` unmounting (`fusermount -uz`).
+- `bot/helper/common.py`: Core task state holder implementing `proceed_split_streaming()`, `_picker_small_only` detection, and `is_leech` isolation guards.
+- `bot/core/tdlib_manager.py`: Manages multi-session TDLib userbot clusters (`tdlib_user_*`) with round-robin dispatching under concurrency locks and `_patch_tdjson_binding()` runtime C-FFI fixes.
+- `bot/helper/mirror_leech_utils/tdlib_uploader.py`: High-throughput TDLib uploader with parallel chunk tracking and thread-safe reply chaining.
+- `bot/helper/ext_utils/media_utils.py`: Smart WZML media metadata engine extracting resolution, duration, audio languages (`langcodes`), and subtitle streams via `ffprobe`.
 
 ---
 
-## Technical Specifications & Architecture
+## 2. Structural Outlines & Direct Sub-Document Links
 
-### System Architecture
-1. **Downloader**: `aria2c` / `qBittorrent` / `Sabnzbd` / `JDownloader` downloads target archive into `/app/downloads/<mid>/`.
-2. **Mount Phase**: `archivemount -o readonly,nosave` attaches the archive to `/app/downloads/<mid>/.mnt_<name>_<hash>`.
-3. **Selection Phase**: Optional `-s` flag launches the Telegram inline ZIP picker (`zip_selector.py`).
-4. **Streaming Upload**: For large files (>2GB/4GB), the bot splits chunks into `<archive>_splits/`, uploads via TDLib/Pyrogram worker pools, and immediately deletes uploaded parts. Small files are dispatched sequentially to prevent FUSE kernel I/O contention.
-5. **Replication**: Secondary Google Drive backup runs asynchronously if configured and requested.
-6. **Teardown**: Proactive `fusermount -uz` unmounts VFS mounts and removes temporary directories.
+All subsystem specifications and runbooks are available in `docs/`:
 
-### Concurrency and Thread Safety
-- Split Uploads: Bounded by `TG_SPLIT_UPLOAD_CONCURRENCY` (default: `4`).
-- Global File Uploads: Bounded by `TG_FILE_UPLOAD_CONCURRENCY` (default: `8`).
-- Worker Threads: Stream chunk workers configured via `TG_UPLOAD_WORKERS` (default: `16`).
+### 2.1 Architecture & Core Subsystems (`docs/architecture/`)
+- [**Documentation Hub**](docs/README.md): Master navigation index and directory structure.
+- [**FUSE Zero-Double-Storage Master Specification**](docs/architecture/FUSE_ZERO_DOUBLE_STORAGE.md): 700+ line deep dive covering FUSE mounting flags, memory-to-disk benchmarks, and streaming split pipelines.
+- [**System Architecture & Topology**](docs/architecture/SYSTEM_ARCHITECTURE.md): Live container topology, host directory binds, and runtime process lifecycles.
+- [**Upstream Comparison & Architectural Diff**](docs/architecture/UPSTREAM_COMPARISON.md): Exhaustive feature matrix and architectural diff against upstream `anasty17/mirror-leech-telegram-bot`.
+- [**Dual Leech + Google Drive Backup Pipeline**](docs/architecture/DUAL_LEECH_GDRIVE_BACKUP.md): Fault-tolerant secondary backup pipeline architecture and error boundaries.
+
+### 2.2 TDLib Multi-Session Concurrency Pool (`docs/tdlib/`)
+- [**TDLib Pool Setup Guide**](docs/tdlib/TDLIB_POOL_SETUP.md): Step-by-step interactive CLI guide for provisioning TDLib userbot sessions.
+- [**TDLib Pool Expansion Runbook**](docs/tdlib/TDLIB_POOL_EXPANSION.md): Operational guide for expanding active sessions without index collisions.
+- [**TDLib Upload Parallelism Specification**](docs/tdlib/TDLIB_UPLOAD_PARALLELISM.md): Worker concurrency semaphores, reply chaining locks, and multi-part upload distribution.
+- [**One-Click TDLib Pool Automation**](docs/tdlib/TDLIB_POOL_ONE_CLICK.md): Specification for the automated one-click database cloner (`clone_tdlib_pool.py`).
+
+### 2.3 Deployment & Storage (`docs/deployment/`, `docs/storage/`)
+- [**Production Deployment Guide**](docs/deployment/PRODUCTION_DEPLOYMENT.md): Complete Docker Compose deployment runbook with `/dev/fuse` and `SYS_ADMIN` capability flags.
+- [**Storage Partition Setup & Bind Layout**](docs/storage/STORAGE_PARTITION_SETUP.md): Dedicated disk partition layout (`/dev/vda4` -> `/srv/bot-storage`) and directory permissions.
+- [**Google Drive OAuth Setup**](docs/storage/GDRIVE_OAUTH_SETUP.md): Google Drive API v3 OAuth token and Service Account setup.
 
 ---
 
-## Configuration Variables Reference
+## 3. Complete JSON Schema Definitions
 
-| Variable | Type | Default | Description |
+### 3.1 Task Listener Lifecycle Events Schema
+The Task Listener manages task transitions from download initiation to final cleanup.
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TaskListenerEvent",
+  "description": "Schema for internal lifecycle events dispatched by TaskListener in bot/helper/listeners/task_listener.py",
+  "type": "object",
+  "required": [
+    "mid",
+    "event_type",
+    "timestamp",
+    "task_name",
+    "is_leech",
+    "stage"
+  ],
+  "properties": {
+    "mid": {
+      "type": "integer",
+      "description": "Telegram Message ID uniquely identifying the task instance"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "DOWNLOAD_START",
+        "DOWNLOAD_COMPLETE",
+        "DOWNLOAD_ERROR",
+        "EXTRACT_START",
+        "ZIP_PICKER_TRIGGERED",
+        "ZIP_PICKER_COMPLETED",
+        "SPLIT_STREAM_START",
+        "UPLOAD_START",
+        "UPLOAD_PROGRESS",
+        "UPLOAD_COMPLETE",
+        "UPLOAD_ERROR",
+        "GDRIVE_BACKUP_START",
+        "GDRIVE_BACKUP_COMPLETE",
+        "TASK_FINALIZED"
+      ]
+    },
+    "timestamp": {
+      "type": "number",
+      "description": "Unix epoch timestamp in seconds"
+    },
+    "task_name": {
+      "type": "string",
+      "description": "Display name of the task, file, or archive"
+    },
+    "is_leech": {
+      "type": "boolean",
+      "description": "True if task is a Telegram Leech, False if Cloud Mirror"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "downloading",
+        "extracting",
+        "selecting",
+        "splitting",
+        "telegram_upload",
+        "gdrive_secondary",
+        "rclone_upload",
+        "completed",
+        "failed"
+      ]
+    },
+    "download_meta": {
+      "type": "object",
+      "properties": {
+        "engine": {
+          "type": "string",
+          "enum": ["aria2", "qbittorrent", "sabnzbd", "jdownloader", "yt_dlp", "direct"]
+        },
+        "total_size": {
+          "type": "integer",
+          "description": "Total payload size in bytes"
+        },
+        "download_path": {
+          "type": "string",
+          "description": "Absolute filesystem path to downloaded artifacts"
+        },
+        "fuse_mounted": {
+          "type": "boolean",
+          "description": "Whether archive was mounted via archivemount"
+        },
+        "fuse_mount_points": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "upload_meta": {
+      "type": "object",
+      "properties": {
+        "backend": {
+          "type": "string",
+          "enum": ["tdlib", "pyrogram", "gdrive", "rclone"]
+        },
+        "uploaded_files_count": { "type": "integer" },
+        "corrupted_files_count": { "type": "integer" },
+        "links": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "gdrive_result": {
+          "type": "object",
+          "properties": {
+            "status": { "type": "string", "enum": ["uploaded", "skipped", "failed"] },
+            "link": { "type": "string" },
+            "dir_id": { "type": "string" },
+            "error": { "type": "string" }
+          }
+        }
+      }
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Detailed error string if event represents a failure"
+    }
+  }
+}
+```
+
+### 3.2 ZIP Picker Telegram Callback Payload Schema
+The interactive ZIP picker GUI encodes user selections into callback query data constrained by Telegram's 64-byte payload limit.
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ZipPickerCallbackPayload",
+  "description": "Schema for Telegram inline keyboard callback data formatted as 'zipsel <mid> <action> [args]' (<64 bytes)",
+  "type": "object",
+  "required": ["prefix", "mid", "action"],
+  "properties": {
+    "raw_string": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^zipsel \\d+ (t \\d+ \\d+|p \\d+|all( \\d+)?|none( \\d+)?|done( \\d+)?|cancel( \\d+)?)$",
+      "description": "Raw space-separated callback string sent in Telegram CallbackQuery"
+    },
+    "prefix": {
+      "type": "string",
+      "const": "zipsel"
+    },
+    "mid": {
+      "type": "integer",
+      "description": "Task Message ID matching listener.mid"
+    },
+    "action": {
+      "type": "string",
+      "enum": ["t", "p", "all", "none", "done", "cancel"],
+      "description": "'t'=toggle item, 'p'=change page, 'all'=select all, 'none'=deselect all, 'done'=confirm selection, 'cancel'=abort task"
+    },
+    "item_index": {
+      "type": "integer",
+      "description": "0-based index of the target file in the sorted archive file list (present only when action='t')"
+    },
+    "page_index": {
+      "type": "integer",
+      "description": "0-based current page index in the 8 items/page paginated view"
+    },
+    "authorization": {
+      "type": "object",
+      "required": ["caller_user_id", "is_authorized"],
+      "properties": {
+        "caller_user_id": { "type": "integer" },
+        "is_authorized": {
+          "type": "boolean",
+          "description": "True if caller is OWNER_ID, SUDO_USER, or task initiator (listener.user_id)"
+        }
+      }
+    }
+  }
+}
+```
+
+### 3.3 TDLib Worker Stats & Runtime Metrics Schema
+Captures operational metrics from the TDLib multi-session concurrency pool and background worker threads.
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TdlibWorkerStats",
+  "description": "Schema representing runtime health, session pool status, and transmission performance metrics",
+  "type": "object",
+  "required": [
+    "timestamp",
+    "is_available",
+    "active_workers_count",
+    "pool_size",
+    "global_stats",
+    "sessions"
+  ],
+  "properties": {
+    "timestamp": {
+      "type": "number",
+      "description": "Snapshot timestamp in epoch seconds"
+    },
+    "is_available": {
+      "type": "boolean",
+      "description": "True if TdlibManager initialized successfully without fatal library or auth errors"
+    },
+    "error": {
+      "type": "string",
+      "description": "Initialization or runtime error string if unavailable"
+    },
+    "is_premium_user": {
+      "type": "boolean",
+      "description": "True if primary or pooled userbot has Telegram Premium active (allowing up to 4GB files)"
+    },
+    "pool_size": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Total number of active authenticated TDLib client instances in the pool"
+    },
+    "active_workers_count": {
+      "type": "integer",
+      "description": "Number of upload threads currently executing across all tasks"
+    },
+    "concurrency_limits": {
+      "type": "object",
+      "required": [
+        "tg_file_upload_concurrency",
+        "tg_split_upload_concurrency",
+        "tg_upload_workers"
+      ],
+      "properties": {
+        "tg_file_upload_concurrency": { "type": "integer", "default": 8 },
+        "tg_split_upload_concurrency": { "type": "integer", "default": 4 },
+        "tg_upload_workers": { "type": "integer", "default": 16 }
+      }
+    },
+    "global_stats": {
+      "type": "object",
+      "required": ["total_bytes_sent", "instantaneous_speed_bytes_sec", "active_tasks_count"],
+      "properties": {
+        "total_bytes_sent": { "type": "integer" },
+        "instantaneous_speed_bytes_sec": { "type": "number" },
+        "active_tasks_count": { "type": "integer" }
+      }
+    },
+    "sessions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["index", "db_path", "is_authorized", "is_healthy"],
+        "properties": {
+          "index": { "type": "integer" },
+          "db_path": { "type": "string" },
+          "user_id": { "type": "integer" },
+          "first_name": { "type": "string" },
+          "username": { "type": "string" },
+          "is_authorized": { "type": "boolean" },
+          "is_healthy": { "type": "boolean" },
+          "current_load": {
+            "type": "integer",
+            "description": "Number of concurrent uploads currently bound to this session instance"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+## 4. Exhaustive Configuration Dictionary
+
+| Variable Name | Type Annotation | Default Value | Description & Constraints |
 | :--- | :--- | :--- | :--- |
-| `BOT_TOKEN` | string | `""` | Telegram Bot Token from `@BotFather` |
-| `OWNER_ID` | integer | `0` | Telegram User ID of the primary administrator |
-| `TELEGRAM_API` | integer | `0` | Telegram API App ID from `my.telegram.org` |
-| `TELEGRAM_HASH` | string | `""` | Telegram API App Hash from `my.telegram.org` |
-| `TDLIB_API_ID` | integer | `0` | Dedicated API App ID for TDLib user sessions |
-| `TDLIB_API_HASH` | string | `""` | Dedicated API App Hash for TDLib user sessions |
-| `TDLIB_USER_UPLOAD` | boolean | `False` | Enable high-speed TDLib userbot multi-session engine |
-| `TDLIB_USER_DB_PATHS` | list | `[]` | List of TDLib SQLite database paths in the cluster |
-| `DATABASE_URL` | string | `""` | MongoDB URI for persistent settings and task states |
-| `GDRIVE_ID` | string | `""` | Default Google Drive Folder / Team Drive ID |
-| `LEECH_SPLIT_SIZE` | integer | `2097152000` | Split file size in bytes (2GB standard, 4GB Premium) |
-| `LEECH_CAPTION` | string | `""` | Template supporting `{filename}`, `{size}`, `{duration}`, `{languages}`, `{subtitles}` |
-| `TG_FILE_UPLOAD_CONCURRENCY` | integer | `8` | Maximum concurrent files uploading simultaneously |
-| `TG_SPLIT_UPLOAD_CONCURRENCY` | integer | `4` | Maximum concurrent parts uploading per split file |
+| `BOT_TOKEN` | `str` | `""` | Telegram Bot Token obtained from `@BotFather`. Required. |
+| `OWNER_ID` | `int` | `0` | Telegram User ID of primary administrator. Required. |
+| `TELEGRAM_API` | `int` | `0` | Telegram API App ID from `my.telegram.org`. Required. |
+| `TELEGRAM_HASH` | `str` | `""` | Telegram API App Hash from `my.telegram.org`. Required. |
+| `TG_PROXY` | `dict[str, Any]` | `{}` | SOCKS5 / HTTP proxy settings dict (keys: `scheme`, `hostname`, `port`, `username`, `password`). |
+| `TG_SPLIT_UPLOAD_CONCURRENCY` | `int` | `4` | Maximum concurrent part uploads per split file (Range: 1 to 4). |
+| `TG_FILE_UPLOAD_CONCURRENCY` | `int` | `8` | Maximum simultaneous file uploads active across all tasks (Range: 1 to 16). |
+| `TG_UPLOAD_WORKERS` | `int` | `16` | Concurrency worker threads per file upload chunk stream (Range: 1 to 16). |
+| `USER_SESSION_STRING` | `str` | `""` | Pyrogram String Session for single premium userbot upload (supports up to 4GB files). |
+| `USER_SESSION_STRINGS` | `list[str]` | `[]` | List of Pyrogram String Sessions for multi-user session uploads. |
+| `TDLIB_API_ID` | `int` | `0` | Dedicated Telegram API ID for TDLib sessions (`0` falls back to `TELEGRAM_API`). |
+| `TDLIB_API_HASH` | `str` | `""` | Dedicated Telegram API Hash for TDLib sessions (`""` falls back to `TELEGRAM_HASH`). |
+| `TDLIB_DB_KEY` | `str` | `"mltbmltb"` | Local database encryption key for TDLib SQLite stores. |
+| `TDLIB_USER_DB_PATH` | `str` | `"tdlib_user"` | Primary TDLib user session database directory path. |
+| `TDLIB_USER_DB_PATHS` | `list[str]` | `[]` | List of TDLib session database paths in the pool (e.g. `["tdlib_user_2", "tdlib_user_3"]`). |
+| `TDLIB_USER_UPLOAD` | `bool` | `False` | Enable high-throughput TDLib userbot multi-session engine. |
+| `TDLIB_USER_UPLOAD_MIN_SIZE` | `int` | `2097152000` | Minimum file size in bytes to trigger TDLib userbot engine (Default: 2 GB). |
+| `DATABASE_URL` | `str` | `""` | MongoDB Connection URI for persisting settings, users, RSS feeds, and incomplete tasks. |
+| `DATABASE_NAME` | `str` | `"mltb"` | MongoDB database collection namespace. |
+| `AUTHORIZED_CHATS` | `str` | `""` | Space-separated list of authorized Telegram Chat IDs. |
+| `SUDO_USERS` | `str` | `""` | Space-separated list of administrative Sudo User IDs. |
+| `CMD_SUFFIX` | `str` | `""` | Suffix appended to bot commands to prevent conflicts in shared channels. |
+| `DEFAULT_UPLOAD` | `str` | `"rc"` | Default cloud destination: `"rc"` (Rclone) or `"gd"` (Google Drive). |
+| `STATUS_LIMIT` | `int` | `4` | Maximum active tasks displayed per status message page. |
+| `STATUS_UPDATE_INTERVAL` | `int` | `15` | Status message refresh interval in seconds (minimum recommended: 10s). |
+| `INCOMPLETE_TASK_NOTIFIER` | `bool` | `False` | Notify users about incomplete tasks across bot restarts (requires `DATABASE_URL`). |
+| `NAME_SUBSTITUTE` | `str` | `r""` | Regex substitution rules formatted as `r"pattern1:replacement1|pattern2:replacement2"`. |
+| `EXCLUDED_EXTENSIONS` | `str` | `""` | Space-separated extensions excluded from uploads (e.g. `"exe txt nfo sample"`). |
+| `INCLUDED_EXTENSIONS` | `str` | `""` | Space-separated extensions exclusively allowed for uploads. |
+| `UPLOAD_PATHS` | `dict[str, str]` | `{}` | Mapping of custom destination keys to cloud/chat destinations. |
+| `FFMPEG_CMDS` | `dict[str, list[str]]` | `{}` | Custom FFmpeg processing pipeline mapping (e.g. `{"merge": ["-f concat -safe 0 -i mltb.txt -c copy mltb.mp4 -del"]}`). |
+| `GDRIVE_ID` | `str` | `""` | Default Google Drive Folder ID or Shared Team Drive ID. |
+| `IS_TEAM_DRIVE` | `bool` | `False` | Set `True` if `GDRIVE_ID` points to a Google Shared Team Drive. |
+| `STOP_DUPLICATE` | `bool` | `False` | Prevent uploading duplicate files if already present in destination Google Drive. |
+| `INDEX_URL` | `str` | `""` | Google Drive Index Worker / Cloudflare Index URL for direct streaming links. |
+| `USE_SERVICE_ACCOUNTS` | `bool` | `False` | Use Google Service Accounts (`accounts/` directory) to bypass 750 GB/day upload limits. |
+| `RCLONE_PATH` | `str` | `""` | Default Rclone remote path / destination folder (e.g. `"remote:folder/subfolder"`). |
+| `RCLONE_FLAGS` | `str` | `""` | Custom global flags passed to Rclone commands (e.g. `"--fast-list --transfers=8 --buffer-size=64M"`). |
+| `RCLONE_SERVE_URL` | `str` | `""` | Base HTTP URL for streaming/downloading files via Rclone serve. |
+| `RCLONE_SERVE_PORT` | `int` | `8080` | Listening port for Rclone HTTP serve daemon. |
+| `RCLONE_SERVE_USER` | `str` | `""` | HTTP basic auth username for Rclone serve. |
+| `RCLONE_SERVE_PASS` | `str` | `""` | HTTP basic auth password for Rclone serve. |
+| `LEECH_SPLIT_SIZE` | `int` | `2097152000` | Split part size in bytes (`2097152000` for standard 2GB, `4194304000` for 4GB Premium). |
+| `AS_DOCUMENT` | `bool` | `False` | Upload media files as uncompressed Telegram Documents by default. |
+| `EQUAL_SPLITS` | `bool` | `False` | Split files into equal-sized parts instead of maximum-sized parts. |
+| `MEDIA_GROUP` | `bool` | `False` | Upload split parts or media batches as grouped Telegram media albums. |
+| `USER_TRANSMISSION` | `bool` | `False` | Use Telegram Premium user session for up to 4 GB per file upload. |
+| `HYBRID_LEECH` | `bool` | `False` | Hybrid mode: Userbot uploads large files (>2GB), Bot uploads standard files (<2GB). |
+| `LEECH_CAPTION` | `str` | `""` | Dynamic caption template supporting `{filename}`, `{size}`, `{duration}`, `{languages}`, `{subtitles}`. |
+| `LEECH_FILENAME_PREFIX` | `str` | `""` | String prepended to all leeched filenames. |
+| `LEECH_DUMP_CHAT` | `str` | `""` | Target Chat ID, Channel username (`@channel`), or `"pm"` where leech files are forwarded. |
+| `CLONE_DUMP_CHATS` | `str` | `""` | Destination chat list or ID/thread mapping for cloned messages. |
+| `FILES_LINKS` | `bool` | `False` | Send clickable Telegram message links of uploaded files in completion summary. |
+| `THUMBNAIL_LAYOUT` | `str` | `""` | Screenshot grid layout for video previews (e.g. `"2x2"`, `"3x3"`, `"2x4"`). |
+| `TORRENT_TIMEOUT` | `int` | `0` | Torrent stall / inactive seeder timeout in seconds (`0` disables timeout). |
+| `BASE_URL` | `str` | `""` | Host IP or domain name for direct web downloads and web UI access. |
+| `BASE_URL_PORT` | `int` | `80` | Listening port for direct web file server. |
+| `WEB_PINCODE` | `bool` | `False` | Require PIN code authorization before downloading files from web server. |
+| `QUEUE_ALL` | `int` | `0` | Maximum simultaneous combined tasks (download + upload). `0` disables queueing. |
+| `QUEUE_DOWNLOAD` | `int` | `0` | Maximum simultaneous active download tasks. `0` disables queueing. |
+| `QUEUE_UPLOAD` | `int` | `0` | Maximum simultaneous active upload tasks. `0` disables queueing. |
+| `RSS_DELAY` | `int` | `600` | Refresh interval in seconds between RSS feed checks (minimum: 600s). |
+| `RSS_CHAT` | `str` | `""` | Telegram Chat ID where RSS feed auto-download notifications are posted. |
+| `RSS_SIZE_LIMIT` | `int` | `0` | Maximum file size in bytes for RSS auto-downloads (`0` disables limit). |
+| `SEARCH_API_LINK` | `str` | `""` | External API endpoint for torrent search queries. |
+| `SEARCH_LIMIT` | `int` | `0` | Maximum search results returned per query (`0` uses engine default). |
+| `SEARCH_PLUGINS` | `list[str]` | `[...]` | List of qBittorrent Nova3 python search plugin URLs enabled for in-bot search. |
+| `FILELION_API` | `str` | `""` | FileLion Premium API key for direct debrid extraction. |
+| `STREAMWISH_API` | `str` | `""` | StreamWish Premium API key for direct debrid extraction. |
+| `JD_EMAIL` | `str` | `""` | JDownloader / My.JDownloader account email. |
+| `JD_PASS` | `str` | `""` | JDownloader / My.JDownloader account password. |
+| `YT_DLP_COOKIEFILE` | `str` | `"cookies.txt"` | File path to Netscape-format cookies for authenticated video extractions. |
+| `YT_DLP_OPTIONS` | `dict[str, Any]` | `{}` | Options dictionary passed directly to `yt_dlp.YoutubeDL`. |
+| `YT_DLP_PROXY` | `str` | `""` | HTTP/SOCKS5 proxy URL for yt-dlp extraction requests. |
+| `USENET_SERVERS` | `list[dict]` | `[]` | List of Usenet server connection dictionaries for SABnzbd. |
+| `HYDRA_IP` | `str` | `""` | Hostname or IP address of external NZB Hydra 2 instance. |
+| `HYDRA_API_KEY` | `str` | `""` | API Key for authenticating against NZB Hydra 2. |
+| `UPSTREAM_REPO` | `str` | `""` | Git repository URL for automatic in-bot update command (`/restart`, `/update`). |
+| `UPSTREAM_BRANCH` | `str` | `"master"` | Git branch tracked for automatic in-bot updates. |
 
 ---
 
-## License & Attribution
+## 5. Production VPS Tuning & Performance Optimization
 
-- **License**: GNU General Public License v3.0 (`GPL-3.0`)
-- **Maintainer**: MHJoy99 / MHJoyBots
-- **Source Repository**: `https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse`
+### 5.1 Linux Kernel & Virtual Memory Tuning (`/etc/sysctl.conf`)
+High-concurrency transfers across FUSE, TDLib, aria2c, and qBittorrent generate substantial network sockets and dirty memory pages. Add the following parameters to `/etc/sysctl.conf`:
+
+```ini
+# Virtual Memory & Page Cache Tuning
+vm.dirty_background_ratio = 5
+vm.dirty_ratio = 10
+vm.vfs_cache_pressure = 50
+vm.swappiness = 10
+
+# File Descriptors & Inotify Watches
+fs.file-max = 2097152
+fs.inotify.max_user_watches = 524288
+fs.inotify.max_user_instances = 8192
+
+# TCP / Network Stack Optimization (BBR + Expanded Buffers)
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+net.core.somaxconn = 65535
+net.ipv4.tcp_max_syn_backlog = 65535
+net.core.rmem_max = 67108864
+net.core.wmem_max = 67108864
+net.core.rmem_default = 33554432
+net.core.wmem_default = 33554432
+net.ipv4.tcp_rmem = 4096 87380 33554432
+net.ipv4.tcp_wmem = 4096 65536 33554432
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.tcp_fin_timeout = 15
+```
+Apply immediately via:
+```bash
+sysctl -p
+```
+
+### 5.2 Storage Partitioning & Mount Options (`/etc/fstab`)
+To maximize I/O performance on NVMe/SSD storage partitions (e.g. `/srv/bot-storage` on `/dev/vda4`):
+
+```fstab
+UUID=90980c8c-2bdf-47f0-a634-8f110bc20fb8 /srv/bot-storage ext4 defaults,noatime,nodiratime,commit=60,barrier=0,nofail 0 2
+```
+- `noatime,nodiratime`: Eliminates metadata write overhead when reading virtual extents via FUSE.
+- `commit=60`: Flushes ext4 journal transactions every 60 seconds rather than default 5 seconds.
+
+### 5.3 Docker Compose Production Specification
+Running Linux FUSE inside Docker requires specific capability grants:
+
+```yaml
+services:
+  mirror-leech-fuse:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mirror-leech-fuse-app-1
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse:/dev/fuse:rwm
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /srv/bot-storage/fuse_bot/app:/app
+      - /srv/bot-storage/fuse_bot/downloads:/app/downloads
+      - /srv/bot-storage/fuse_bot/accounts:/app/accounts
+      - /srv/bot-storage/fuse_bot/tokens:/app/tokens
+      - /srv/bot-storage/fuse_bot/rclone:/app/rclone
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TZ=UTC
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+```
+
+### 5.4 Stale FUSE Mount Recovery Protocol
+If a container or task crashes abnormally, stale mount endpoints in `/app/downloads/` can be unmounted using:
+
+```bash
+# Inside container:
+cat /proc/mounts | grep archivemount | awk '{print $2}' | xargs -r -n 1 fusermount -uz
+
+# Or from host:
+find /srv/bot-storage/fuse_bot/app/downloads/ -name ".mnt_*" -exec fusermount -uz {} + 2>/dev/null || true
+```

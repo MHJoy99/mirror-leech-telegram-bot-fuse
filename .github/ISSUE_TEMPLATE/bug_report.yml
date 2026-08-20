@@ -1,0 +1,133 @@
+name: Bug Report
+description: Report an unexpected error, crash, or unexpected behavior in mirror-leech-telegram-bot-fuse.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Thank you for reporting a bug!
+        Before submitting, please make sure you:
+        - Search [existing issues](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/issues) to prevent duplicate reports.
+        - Redact all sensitive information (e.g. `BOT_TOKEN`, `TELEGRAM_API_HASH`, Google service account credentials, passwords).
+        - If reporting a security vulnerability, please submit a confidential report via [Security Advisories](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/security/advisories/new).
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe what happened and how it differs from expected behavior...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Provide clear, step-by-step instructions to reproduce the issue.
+      placeholder: |
+        1. Send command `/mirror <url>` or `/leech <url>`
+        2. Select files using the Inline ZIP Picker
+        3. Observe error during FUSE mount or upload
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear description of what you expected to happen.
+      placeholder: E.g., The archive should mount cleanly via archivemount and extract selected files without double storage overhead.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System / Environment
+      description: What operating system environment is the bot running on?
+      options:
+        - Ubuntu 24.04 LTS (Noble Numbat)
+        - Ubuntu 22.04 LTS (Jammy Jellyfish)
+        - Debian 12 (Bookworm)
+        - Debian 11 (Bullseye)
+        - Alpine Linux (Docker Container)
+        - Arch Linux
+        - Windows Subsystem for Linux (WSL2)
+        - Other (specified in additional context)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: deployment-mode
+    attributes:
+      label: Deployment Mode
+      description: How is the bot deployed?
+      options:
+        - Docker Compose (`docker compose up -d`)
+        - Docker Standalone (`docker run`)
+        - Native Bare Metal / Systemd
+        - Podman / Rootless Container
+        - Kubernetes / Cloud PaaS
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: storage-mode
+    attributes:
+      label: Storage & Pipeline Mode
+      description: Which storage / processing subsystem was active when the error occurred?
+      options:
+        - FUSE Virtual Filesystem (`archivemount`)
+        - Interactive Telegram ZIP Picker (`zip_selector.py`)
+        - TDLib Multi-Session Concurrency Pool
+        - Direct Extraction (7z / tar / unrar)
+        - Direct Download (aria2c / qBittorrent / Sabnzbd / yt-dlp)
+        - Cloud Storage Upload (Google Drive / Service Accounts)
+        - Rclone Remote Sync / Mount
+        - General Telegram Bot Interaction
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Bot Version / Commit Hash
+      description: Provide the git commit hash (e.g. output of `git rev-parse --short HEAD`) or release tag.
+      placeholder: e.g. b8f4a1c or latest main
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Log Output
+      description: Please paste relevant logs from `log.txt` or Docker logs (`docker logs <container>`). Ensure secrets are sanitized!
+      render: shell
+      placeholder: |
+        [2026-08-20 12:00:00,000] [ERROR] [fuse_engine.py:145] ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context & Screenshots
+      description: Add any other context, configuration snippets (sanitized), or screenshots about the problem here.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Confirmation Checklist
+      description: Please verify and check all applicable items.
+      options:
+        - label: I have searched the issue tracker and confirmed this is not a duplicate.
+          required: true
+        - label: I have verified that all sensitive credentials, tokens, and personal information are sanitized from the logs.
+          required: true
+        - label: I am running a supported version of `mirror-leech-telegram-bot-fuse`.
+          required: true

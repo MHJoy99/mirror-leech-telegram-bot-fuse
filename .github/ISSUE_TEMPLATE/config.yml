@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: GitHub Discussions
+    url: https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/discussions
+    about: Ask general questions, request setup assistance, or discuss new ideas with the community.
+  - name: Security Vulnerabilities
+    url: https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/security/advisories/new
+    about: Report potential security vulnerabilities or credential leak risks privately.
+  - name: Ko-fi Support & Sponsorship
+    url: https://ko-fi.com/mhjoybots
+    about: Support project infrastructure, testing rigs, and continuous development.
