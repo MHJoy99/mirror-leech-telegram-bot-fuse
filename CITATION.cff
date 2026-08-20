@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Anasy-RSS-MHJoyBots-FUSE: High-Performance Telegram Mirror, Leech & FUSE Zero-Double-Storage Engine"
+abstract: "An advanced asynchronous Python Telegram mirror and leech bot featuring Linux FUSE virtual mounting, interactive inline ZIP picker GUI, TDLib multi-session concurrency clustering, and secondary Google Drive replication."
+authors:
+  - name: "MHJoy99"
+    email: "mhjoygamershub@gmail.com"
+repository-code: "https://github.com/MHJoy99/Anasy-RSS-MHJoyBots-FUSE"
+url: "https://github.com/MHJoy99/Anasy-RSS-MHJoyBots-FUSE"
+keywords:
+  - telegram-bot
+  - mirror-bot
+  - leech-bot
+  - fuse
+  - archivemount
+  - tdlib
+  - pyrogram
+  - zero-double-storage
+  - asyncio
+  - docker
+license: GPL-3.0
+version: 2.0.0
+date-released: 2026-08-20

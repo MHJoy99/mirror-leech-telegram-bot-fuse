@@ -1,0 +1,67 @@
+# Anasy-RSS-MHJoyBots-FUSE — Complete Technical Knowledge Base
+
+## Overview & Executive Summary
+
+Anasy-RSS-MHJoyBots-FUSE is an enterprise-grade Telegram mirror and leech engine written in Python 3.12+ (AsyncIO / Pyrogram / TDLib). It is designed to resolve disk exhaustion issues on storage-constrained Virtual Private Servers (VPS) when processing multi-gigabyte compressed archives.
+
+### The Double-Storage Bottleneck
+Legacy mirror/leech bots require downloading an archive (e.g. 33 GB `.zip`), fully extracting it to disk via `7z x` (requiring an additional 35 GB), and generating split parts (+20 GB), leading to peak storage usage exceeding 88 GB on an 84 GB SSD partition.
+
+### The FUSE Zero-Double-Storage Solution
+Anasy-RSS-MHJoyBots-FUSE mounts archive files directly into the Linux VFS using `archivemount -o readonly,nosave`. The archive's virtual file extents are read and decompressed on-the-fly directly into the splitting and upload pipelines. Peak disk usage is capped at `Archive Size + Single Active Split (~2.4 GB)`, achieving over 50% peak storage reduction and enabling concurrent tasks on budget VPS hardware.
+
+---
+
+## Key Modules and Functions
+
+- `bot/helper/ext_utils/files_utils.py`: Contains `SevenZ.extract()` which mounts archives via `archivemount`, polls `/proc/mounts` for active mountpoints, and executes clean unmounts (`fusermount -uz`) in `clean_download()`.
+- `bot/modules/zip_selector.py`: Implements the interactive Telegram ZIP GUI picker with 8 items/page pagination, `<64B` callback keys (`zipsel <mid> <action> [args]`), 60-second AFK timeout fallback, and 3-tier authorization.
+- `bot/helper/common.py`: Implements `proceed_split_streaming()` for sequential on-the-fly splitting and uploading, `_picker_small_only` handling, and the `is_leech` guard preventing secondary Google Drive leaks during Telegram leech tasks.
+- `bot/core/tdlib_manager.py`: Manages the multi-session TDLib userbot cluster (`tdlib_user_2` through `tdlib_user_11`) with round-robin dispatching under concurrency locks.
+- `bot/helper/ext_utils/media_utils.py`: Renders smart WZML captions using `ffprobe` stream metadata, `langcodes` resolution, and subtitle stream detection.
+
+---
+
+## Technical Specifications & Architecture
+
+### System Architecture
+1. **Downloader**: `aria2c` / `qBittorrent` / `Sabnzbd` / `JDownloader` downloads target archive into `/app/downloads/<mid>/`.
+2. **Mount Phase**: `archivemount -o readonly,nosave` attaches the archive to `/app/downloads/<mid>/.mnt_<name>_<hash>`.
+3. **Selection Phase**: Optional `-s` flag launches the Telegram inline ZIP picker (`zip_selector.py`).
+4. **Streaming Upload**: For large files (>2GB/4GB), the bot splits chunks into `<archive>_splits/`, uploads via TDLib/Pyrogram worker pools, and immediately deletes uploaded parts. Small files are dispatched sequentially to prevent FUSE kernel I/O contention.
+5. **Replication**: Secondary Google Drive backup runs asynchronously if configured and requested.
+6. **Teardown**: Proactive `fusermount -uz` unmounts VFS mounts and removes temporary directories.
+
+### Concurrency and Thread Safety
+- Split Uploads: Bounded by `TG_SPLIT_UPLOAD_CONCURRENCY` (default: `4`).
+- Global File Uploads: Bounded by `TG_FILE_UPLOAD_CONCURRENCY` (default: `8`).
+- Worker Threads: Stream chunk workers configured via `TG_UPLOAD_WORKERS` (default: `16`).
+
+---
+
+## Configuration Variables Reference
+
+| Variable | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `BOT_TOKEN` | string | `""` | Telegram Bot Token from `@BotFather` |
+| `OWNER_ID` | integer | `0` | Telegram User ID of the primary administrator |
+| `TELEGRAM_API` | integer | `0` | Telegram API App ID from `my.telegram.org` |
+| `TELEGRAM_HASH` | string | `""` | Telegram API App Hash from `my.telegram.org` |
+| `TDLIB_API_ID` | integer | `0` | Dedicated API App ID for TDLib user sessions |
+| `TDLIB_API_HASH` | string | `""` | Dedicated API App Hash for TDLib user sessions |
+| `TDLIB_USER_UPLOAD` | boolean | `False` | Enable high-speed TDLib userbot multi-session engine |
+| `TDLIB_USER_DB_PATHS` | list | `[]` | List of TDLib SQLite database paths in the cluster |
+| `DATABASE_URL` | string | `""` | MongoDB URI for persistent settings and task states |
+| `GDRIVE_ID` | string | `""` | Default Google Drive Folder / Team Drive ID |
+| `LEECH_SPLIT_SIZE` | integer | `2097152000` | Split file size in bytes (2GB standard, 4GB Premium) |
+| `LEECH_CAPTION` | string | `""` | Template supporting `{filename}`, `{size}`, `{duration}`, `{languages}`, `{subtitles}` |
+| `TG_FILE_UPLOAD_CONCURRENCY` | integer | `8` | Maximum concurrent files uploading simultaneously |
+| `TG_SPLIT_UPLOAD_CONCURRENCY` | integer | `4` | Maximum concurrent parts uploading per split file |
+
+---
+
+## License & Attribution
+
+- **License**: GNU General Public License v3.0 (`GPL-3.0`)
+- **Maintainer**: MHJoy99 / MHJoyBots
+- **Source Repository**: `https://github.com/MHJoy99/Anasy-RSS-MHJoyBots-FUSE`

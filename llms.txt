@@ -1,0 +1,37 @@
+# Anasy-RSS-MHJoyBots-FUSE
+
+> High-Performance Telegram Mirror, Leech & FUSE Zero-Double-Storage Engine
+
+Anasy-RSS-MHJoyBots-FUSE is an advanced asynchronous Python Telegram mirror and leech bot that solves the critical double-storage bottleneck on VPS deployments. By utilizing Linux FUSE (`archivemount` in `readonly,nosave` mode), multi-gigabyte archives (`.zip`, `.tar`, `.7z`) are mounted directly into the virtual filesystem without physical decompression, reducing peak disk footprint by over 50%.
+
+## Key Capabilities
+
+- **FUSE Zero-Double-Storage Engine**: Dynamically mounts archive files on-the-fly via Linux VFS, eliminating the need to decompress archives to disk.
+- **Interactive Inline ZIP Picker GUI**: Native Telegram button interface (`/leech <link> -e -s`) featuring multi-page pagination, file selection checkboxes, and size previews.
+- **TDLib Multi-Session Concurrency Pool**: Bounded semaphore concurrency cluster distributing multi-part split uploads across multiple authenticated Telegram user accounts.
+- **Dual Telegram Leech & Google Drive Backup**: Primary upload to Telegram channels with non-blocking asynchronous replication to Google Drive.
+- **Smart WZML Media Captioning**: Real-time `ffprobe` stream metadata extraction for video resolution, duration, audio language tracks, and embedded subtitle streams.
+- **Universal Multi-Engine Protocols**: Deep integration with `aria2c`, `qBittorrent` (with search plugins), `Sabnzbd` (Usenet / NZB), `JDownloader2`, and `yt-dlp`.
+
+## Core Documentation
+
+- [Documentation Hub](docs/README.md): Master table of contents and documentation index.
+- [FUSE Zero-Double-Storage Bible](docs/architecture/FUSE_ZERO_DOUBLE_STORAGE.md): In-depth 700+ line technical specification covering FUSE mounting, streaming split, and memory-to-disk benchmarks.
+- [System Architecture & Topology](docs/architecture/SYSTEM_ARCHITECTURE.md): Container runtime topology, volume mappings, and process lifecycles.
+- [Upstream Comparison](docs/architecture/UPSTREAM_COMPARISON.md): Feature matrix and architectural diff against upstream MLTB.
+- [Dual Leech + GDrive Backup](docs/architecture/DUAL_LEECH_GDRIVE_BACKUP.md): Fault-tolerant secondary backup pipeline.
+- [TDLib Pool Setup Guide](docs/tdlib/TDLIB_POOL_SETUP.md): Step-by-step setup guide for TDLib multi-session concurrency clusters.
+- [TDLib Pool Expansion Runbook](docs/tdlib/TDLIB_POOL_EXPANSION.md): Scaling guidelines and collision-free session database indexing.
+- [TDLib Upload Parallelism Spec](docs/tdlib/TDLIB_UPLOAD_PARALLELISM.md): Worker concurrency and semaphore thread safety specification.
+- [Production Deployment Guide](docs/deployment/PRODUCTION_DEPLOYMENT.md): Complete Docker Compose deployment runbook with `/dev/fuse` and `SYS_ADMIN` capability flags.
+- [Storage Partition Setup](docs/storage/STORAGE_PARTITION_SETUP.md): Dedicated disk partition layout and volume permissions.
+- [Google Drive OAuth Setup](docs/storage/GDRIVE_OAUTH_SETUP.md): Google Drive API v3 OAuth token and Service Account setup.
+
+## Quickstart
+
+```bash
+git clone https://github.com/MHJoy99/Anasy-RSS-MHJoyBots-FUSE.git
+cd Anasy-RSS-MHJoyBots-FUSE
+cp config_sample.py config.py
+docker compose up -d --build
+```
