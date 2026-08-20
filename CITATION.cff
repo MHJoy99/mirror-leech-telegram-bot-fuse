@@ -5,8 +5,8 @@ abstract: "An advanced asynchronous Python Telegram mirror and leech bot featuri
 authors:
   - name: "MHJoy99"
     email: "mhjoygamershub@gmail.com"
-repository-code: "https://github.com/MHJoy99/Anasy-RSS-MHJoyBots-FUSE"
-url: "https://github.com/MHJoy99/Anasy-RSS-MHJoyBots-FUSE"
+repository-code: "https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse"
+url: "https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse"
 keywords:
   - telegram-bot
   - mirror-bot

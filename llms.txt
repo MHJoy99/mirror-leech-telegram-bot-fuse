@@ -30,7 +30,7 @@ Anasy-RSS-MHJoyBots-FUSE is an advanced asynchronous Python Telegram mirror and 
 ## Quickstart
 
 ```bash
-git clone https://github.com/MHJoy99/Anasy-RSS-MHJoyBots-FUSE.git
+git clone https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse.git
 cd Anasy-RSS-MHJoyBots-FUSE
 cp config_sample.py config.py
 docker compose up -d --build

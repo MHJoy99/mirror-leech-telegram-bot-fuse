@@ -64,4 +64,4 @@ Anasy-RSS-MHJoyBots-FUSE mounts archive files directly into the Linux VFS using 
 
 - **License**: GNU General Public License v3.0 (`GPL-3.0`)
 - **Maintainer**: MHJoy99 / MHJoyBots
-- **Source Repository**: `https://github.com/MHJoy99/Anasy-RSS-MHJoyBots-FUSE`
+- **Source Repository**: `https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse`
