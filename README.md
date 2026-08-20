@@ -71,9 +71,15 @@ The diagram below illustrates the end-to-end execution pipeline from user comman
 
 <div align="center">
 
-![System Architecture & Topology Diagram](docs/assets/architecture.svg)
+### 🎬 Interactive System Overview & Live Demonstration
 
-https://github.com/user-attachments/assets/promo-video.mp4
+![Remotion Architecture & UI Demo](docs/assets/demo.gif)
+
+*▶️ [Download / View Full 1080p 60fps HD Video](docs/assets/promo-video.mp4)*
+
+---
+
+![System Architecture & Topology Diagram](docs/assets/architecture.svg)
 
 </div>
 
