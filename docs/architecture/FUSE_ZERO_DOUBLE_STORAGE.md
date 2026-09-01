@@ -640,7 +640,7 @@ df -h /srv/bot-storage
                                            v
                              [Did /proc/mounts register?]
                                       /          \
-                                    YES           NO (Timeout 30s)
+                                    YES           NO (Timeout 30s or Error)
                                     /              \
                                    v                v
                         [Was -s flag passed?]  [fusermount -uz & Fallback to 7z]
@@ -681,6 +681,7 @@ df -h /srv/bot-storage
 | Scenario | Condition | System Response / Safeguard |
 |---|---|---|
 | **Archive with Password** | User supplies `-p<password>` | `archivemount` lacks password support; system automatically logs warning and falls back to classic `7z x -p...` extraction. |
+| **Large/Split Archive Error** | `archivemount` fails | Certain large Zip64 archives (>20GB) or split archives trigger `archivemount` failure; system detects failure/timeout and gracefully falls back to `7z x` physical extraction. |
 | **Picker Inactivity (AFK)** | User does not tap buttons for 60 seconds | `asyncio.wait_for(timeout=60)` triggers; auto-completes with all files selected (safe default). |
 | **Task Cancellation** | User clicks `❌ Cancel` on picker or sends `/c` | Sets `listener.is_cancelled = True`, unmounts FUSE mount immediately, aborts download, and runs `clean_download`. |
 | **FUSE Kernel Hang** | High concurrency I/O on virtual files | Anti-choke sequential upload ensures only 1 file is read from the FUSE mount at any instant. |

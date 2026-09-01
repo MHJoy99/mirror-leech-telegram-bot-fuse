@@ -306,10 +306,20 @@ class RcloneTransferHelper:
                 fremote = f"sa{self._sa_index:03}"
                 LOGGER.info(f"Upload with service account {fremote}")
 
+        is_fuse = bool(getattr(self._listener, '_fuse_mounts', None))
+        method = "copy" if is_fuse else "move"
+        
         cmd = self._get_updated_command(
-            fconfig_path, path, f"{fremote}:{rc_path}", "move"
+            fconfig_path, path, f"{fremote}:{rc_path}", method
         )
-        if remote_type == "drive" and not self._listener.rc_flags:
+        
+        if is_fuse and getattr(self._listener, '_zip_selected_rels', None):
+            files_from_path = f"{self._listener.dir}/_rclone_selected.txt"
+            async with aiopen(files_from_path, "w") as f:
+                await f.write("\n".join(self._listener._zip_selected_rels))
+            cmd.extend(("--files-from", files_from_path))
+
+        if is_fuse or (remote_type == "drive" and not self._listener.rc_flags):
             cmd.extend(
                 (
                     "--tpslimit",

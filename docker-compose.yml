@@ -11,7 +11,7 @@ services:
     cap_add:
       - SYS_ADMIN
     devices:
-      - /dev/fuse:/dev/fuse
+      - /dev/fuse
     security_opt:
       - apparmor:unconfined
     logging:
@@ -20,6 +20,19 @@ services:
         max-size: "10m"
         max-file: "3"
     volumes:
+      - ./config.py:/app/config.py
+      - ./tdlib_user:/app/tdlib_user
+      - ./tdlib_user_2:/app/tdlib_user_2
+      - ./tdlib_user_3:/app/tdlib_user_3
+      - ./tdlib_user_4:/app/tdlib_user_4
+      - ./tdlib_user_5:/app/tdlib_user_5
+      - ./tdlib_user_6:/app/tdlib_user_6
+      - ./tdlib_user_6_2:/app/tdlib_user_6_2
+      - ./tdlib_user_7:/app/tdlib_user_7
+      - ./tdlib_user_8:/app/tdlib_user_8
+      - ./tdlib_user_9:/app/tdlib_user_9
+      - ./tdlib_user_10:/app/tdlib_user_10
+      - ./tdlib_user_11:/app/tdlib_user_11
       - /srv/bot-storage/fuse_bot/downloads:/app/downloads
       - /srv/bot-storage/fuse_bot/accounts:/app/accounts
       - /srv/bot-storage/fuse_bot/thumbnails:/app/thumbnails

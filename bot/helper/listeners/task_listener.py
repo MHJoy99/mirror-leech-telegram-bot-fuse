@@ -415,27 +415,19 @@ class TaskListener(TaskConfig):
                 # For FUSE mount, use the actual extracted content name (inner folder or mount parent) instead of .mnt_... name
                 try:
                     entries = await listdir(up_path)
-                    # If single top-level folder inside mount, use that as name
                     if len(entries) == 1:
                         cand = ospath.join(up_path, entries[0])
-                        if await aiopath.isdir(cand):
-                            self.name = entries[0]
-                        else:
-                            self.name = entries[0]
-                    elif entries:
-                        # Use first entry or fallback to mount basename minus .mnt_ prefix
                         self.name = entries[0]
+                        up_path = cand
+                        self.is_file = await aiopath.isfile(cand)
                     else:
-                        self.name = up_path.rstrip("/").split("/")[-1]
-                except:
+                        # Multi-file archive: derive folder name from archive name
+                        fallback = ospath.basename(self._fuse_mounts[0]).replace(".mnt_", "")
+                        self.name = fallback.rsplit("_", 1)[0].replace("_", " ").strip() or self.name
+                        self.is_file = False
+                except Exception as e:
+                    LOGGER.error(f"Error parsing mount entries: {e}")
                     self.name = up_path.rstrip("/").split("/")[-1]
-                # Clean up .mnt_ prefix if leaked
-                if self.name.startswith(".mnt_"):
-                    try:
-                        fallback = ospath.basename(self._fuse_mounts[0]).replace(".mnt_","")
-                        self.name = fallback.rsplit("_",1)[0].replace("_"," ").strip() or self.name
-                    except:
-                        pass
                 try:
                     self.size = await get_path_size(up_path)
                 except:
@@ -627,7 +619,8 @@ class TaskListener(TaskConfig):
                 return
             LOGGER.info(f"Start from Queued/Upload: {self.name}")
 
-        self.size = await get_path_size(up_dir)
+        if not (hasattr(self, '_fuse_mounts') and self._fuse_mounts):
+            self.size = await get_path_size(up_dir)
 
         if self.is_leech:
             LOGGER.info(f"Leech Name: {self.name}")

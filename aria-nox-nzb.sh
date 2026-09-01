@@ -10,6 +10,23 @@ if [ -n "$tracker_list" ]; then
     tracker_arg=(--bt-tracker="[$tracker_list]")
 fi
 
+QBITTORRENT_PORT="8090"
+qbit_profile="$(pwd)"
+qbit_config="${qbit_profile}/qBittorrent/config/qBittorrent.conf"
+
+# Ensure config directory exists
+mkdir -p "${qbit_profile}/qBittorrent/config"
+
+if [ -f "${qbit_config}" ]; then
+    if grep -q '^WebUI\\Port=' "${qbit_config}"; then
+        sed -i "s|^WebUI\\\\Port=.*|WebUI\\\\Port=${QBITTORRENT_PORT}|" "${qbit_config}"
+    else
+        printf '\n[Preferences]\nWebUI\\Port=%s\n' "${QBITTORRENT_PORT}" >> "${qbit_config}"
+    fi
+else
+    printf '[Preferences]\nWebUI\\Port=%s\n' "${QBITTORRENT_PORT}" > "${qbit_config}"
+fi
+
 # Launch aria2 daemon with secure TLS certificate verification and localhost-bound RPC
 aria2c --allow-overwrite=true \
        --auto-file-renaming=true \
@@ -46,8 +63,8 @@ aria2c --allow-overwrite=true \
        --summary-interval=0 \
        --max-upload-limit=1K
 
-# Start qBittorrent daemon
-qbittorrent-nox -d --profile="$(pwd)"
+# Start qBittorrent daemon with explicit WebUI port
+qbittorrent-nox -d --profile="$(pwd)" --webui-port="${QBITTORRENT_PORT}"
 
 # Start SABnzbd daemon
 sabnzbdplus -f sabnzbd/SABnzbd.ini -s :::8070 -b 0 -d -c -l 0 --console

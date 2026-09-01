@@ -240,21 +240,27 @@ def get_mime_type(file_path):
 
 async def remove_excluded_files(fpath, ee):
     for root, _, files in await sync_to_async(walk, fpath):
-        if root.strip().endswith("/yt-dlp-thumb"):
+        if root.strip().endswith("/yt-dlp-thumb") or ".mnt_" in root:
             continue
         for f in files:
             if f.strip().lower().endswith(tuple(ee)):
-                await remove(ospath.join(root, f))
+                try:
+                    await remove(ospath.join(root, f))
+                except OSError:
+                    pass
 
 
 async def remove_non_included_files(fpath, ie):
     for root, _, files in await sync_to_async(walk, fpath):
-        if root.strip().endswith("/yt-dlp-thumb"):
+        if root.strip().endswith("/yt-dlp-thumb") or ".mnt_" in root:
             continue
         for f in files:
             if f.strip().lower().endswith(tuple(ie)):
                 continue
-            await remove(ospath.join(root, f))
+            try:
+                await remove(ospath.join(root, f))
+            except OSError:
+                pass
 
 
 async def move_and_merge(source, destination, mid):
@@ -516,7 +522,34 @@ class SevenZ:
                         await aiormtree(mount_point, ignore_errors=True)
                     except:
                         pass
-                    return False
+                    
+                    LOGGER.warning(f"archivemount exited with error for {f_path}, falling back to 7z x extraction")
+                    extract_dir = ospath.join(parent, f"{base}_extracted")
+                    await aiomakedirs(extract_dir, exist_ok=True)
+                    cmd = ["7z", "x", f_path, f"-o{extract_dir}", "-aot", "-xr!@PaxHeader", "-bsp1", "-bse1", "-bb3"]
+                    
+                    self._listener.subproc = await create_subprocess_exec(*cmd, stdout=PIPE, stderr=PIPE)
+                    await self._sevenz_progress()
+                    _, stderr = await self._listener.subproc.communicate()
+                    code = self._listener.subproc.returncode
+                    
+                    if code == 0:
+                        try:
+                            await remove(f_path)
+                        except Exception:
+                            pass
+                        return extract_dir
+                    else:
+                        try:
+                            stderr = stderr.decode().strip()
+                        except:
+                            stderr = "Unable to decode error"
+                        LOGGER.error(f"{stderr}. Unable to extract archive with 7z fallback!. Path: {f_path}")
+                        try:
+                            await aiormtree(extract_dir, ignore_errors=True)
+                        except:
+                            pass
+                        return False
         if not mounted:
             # timeout - capture code if exited
             code = proc.returncode
@@ -546,8 +579,37 @@ class SevenZ:
                 await aiormtree(mount_point, ignore_errors=True)
             except:
                 pass
-            return False
-        LOGGER.info(f"archivemount mounted: {mount_point} for {f_path}")
+            
+            LOGGER.warning(f"archivemount failed for {f_path}, falling back to 7z x extraction")
+            extract_dir = ospath.join(parent, f"{base}_extracted")
+            await aiomakedirs(extract_dir, exist_ok=True)
+            cmd = ["7z", "x", f_path, f"-o{extract_dir}", "-aot", "-xr!@PaxHeader", "-bsp1", "-bse1", "-bb3"]
+            
+            self._listener.subproc = await create_subprocess_exec(*cmd, stdout=PIPE, stderr=PIPE)
+            await self._sevenz_progress()
+            _, stderr = await self._listener.subproc.communicate()
+            code = self._listener.subproc.returncode
+            
+            if code == 0:
+                try:
+                    await remove(f_path)
+                except Exception:
+                    pass
+                return extract_dir
+            else:
+                try:
+                    stderr = stderr.decode().strip()
+                except:
+                    stderr = "Unable to decode error"
+                LOGGER.error(f"{stderr}. Unable to extract archive with 7z fallback!. Path: {f_path}")
+                try:
+                    await aiormtree(extract_dir, ignore_errors=True)
+                except:
+                    pass
+                return False
+        
+        # Log successful mount
+        LOGGER.info(f"FUSE Mounted via archivemount: {f_path} to {mount_point}")
         return mount_point
 
     async def zip(self, dl_path, up_path, pswd):

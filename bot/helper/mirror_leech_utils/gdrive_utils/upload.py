@@ -116,18 +116,26 @@ class GoogleDriveUpload(GoogleDriveHelper):
         if len(list_dirs) == 0:
             return dest_id
         new_id = None
+        selected_rels = getattr(self.listener, '_zip_selected_rels', None)
+        
         for item in list_dirs:
             current_file_name = ospath.join(input_directory, item)
+            rel_name = ospath.relpath(current_file_name, base_directory).replace("\\", "/")
+            
             if not ospath.exists(current_file_name):
                 if intervals["stopAll"]:
                     return
                 LOGGER.error(f"{current_file_name} not exists! Continue uploading!")
                 continue
             if ospath.isdir(current_file_name):
+                if selected_rels and not any(r == rel_name or r.startswith(f"{rel_name}/") for r in selected_rels):
+                    continue
                 current_dir_id = self.create_directory(item, dest_id)
                 new_id = self._upload_dir(current_file_name, current_dir_id, base_directory)
                 self.total_folders += 1
             else:
+                if selected_rels and rel_name not in selected_rels:
+                    continue
                 mime_type = get_mime_type(current_file_name)
                 file_name = current_file_name.split("/")[-1]
                 file_link = self._upload_file(

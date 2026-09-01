@@ -806,8 +806,8 @@ class TaskConfig:
             self.subname = ospath.basename(f_path)
             ret = await sevenz.extract(f_path, dl_path, pswd)
             if ret is False:
-                LOGGER.error(f"Extract failed for {f_path}")
-                return dl_path
+                LOGGER.error(f"Extract failed for {f_path} - Aborting extraction process")
+                raise Exception(f"Failed to extract {f_path}")
             if isinstance(ret, str) and ospath.exists(ret):
                 self._fuse_mounts.append(ret)
                 return ret
@@ -827,10 +827,12 @@ class TaskConfig:
                 continue
             if isinstance(ret, str) and ospath.exists(ret):
                 self._fuse_mounts.append(ret)
-                try:
-                    await remove(f_path)
-                except:
-                    pass
+                # Only delete f_path if it was physically extracted (7z fallback), NOT if it's a FUSE mount
+                if not ".mnt_" in ret:
+                    try:
+                        await remove(f_path)
+                    except:
+                        pass
         # Build unified view: symlink non-archive files + mount contents
         for dirpath, _, files in await sync_to_async(walk, dl_path, topdown=False):
             for file_ in files:
@@ -1428,8 +1430,9 @@ class TaskConfig:
                 _picker_small_only = True
                 LOGGER.info(f"Zip picker: no large files selected ({len(self._zip_selected_rels)} small), will upload small files only")
         if not self.files_to_proceed and not _picker_small_only:
-            self._streaming_active = False
-            return dl_path
+            # If no large files to split, check if we have small files in FUSE mount to upload
+            _picker_small_only = True
+            LOGGER.info(f"FUSE streaming: all files under split_size ({self.split_size}), proceeding with sequential upload")
         ffmpeg = FFMpeg(self) if not _picker_small_only else None
         # where FUSE splits go
         clean_name = ospath.basename(dl_path)

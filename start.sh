@@ -6,6 +6,9 @@ if [ -f "mltbenv/bin/activate" ]; then
     . mltbenv/bin/activate
 fi
 
+# Run background daemons
+bash aria-nox-nzb.sh
+
 # Run updater / config sync
 python3 update.py
 
