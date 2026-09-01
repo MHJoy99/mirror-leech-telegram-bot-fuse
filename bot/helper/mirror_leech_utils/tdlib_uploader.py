@@ -490,10 +490,14 @@ class TdlibTelegramUploader:
             if (
                 not self._listener.is_cancelled
                 and not self._listener.preserve_upload_files
-                and await aiopath.exists(upload_path)
             ):
                 try:
-                    await remove(upload_path)
+                    import os as _os
+                    real_path = await sync_to_async(_os.path.realpath, upload_path)
+                    if real_path and await aiopath.exists(real_path):
+                        await remove(real_path)
+                    if await aiopath.exists(upload_path):
+                        await remove(upload_path)
                 except (OSError, Exception):
                     pass
 

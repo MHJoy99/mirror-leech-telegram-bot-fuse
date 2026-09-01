@@ -7,7 +7,7 @@ from os import walk, path as ospath
 from secrets import token_urlsafe
 from aioshutil import move, rmtree
 from pyrogram.enums import ChatAction
-from re import sub, I, findall
+from re import sub, I, findall, compile as re_compile, escape as re_escape
 from shlex import split
 from collections import Counter
 from copy import deepcopy
@@ -1475,16 +1475,21 @@ class TaskConfig:
                     LOGGER.error(f"Split failed for {file_}, skipping upload for this file")
                     continue
                 # Upload just this file's splits then delete to free space
-                split_prefix = ospath.join(out_dir, file_)
-                # collect produced parts for this file
+                # collect produced parts for this file (supports both .part001.ext and .ext.001)
+                base_name, extension = ospath.splitext(file_)
+                part_pattern = re_compile(
+                    rf"^(?:{re_escape(file_)}\.\d+|{re_escape(base_name)}\.part\d+{re_escape(extension)})$"
+                )
                 try:
-                    produced = [ospath.join(out_dir, f) for f in await sync_to_async(_os.listdir, out_dir) if f.startswith(file_ + ".")]
+                    all_dir_files = await sync_to_async(_os.listdir, out_dir)
+                    produced = [ospath.join(out_dir, f) for f in all_dir_files if part_pattern.match(f)]
                 except:
                     produced = []
                 if not produced:
                     LOGGER.warning(f"No split parts found for {file_} in {out_dir}")
                     continue
-                LOGGER.info(f"Uploading splits for {file_}: {len(produced)} parts")
+                produced.sort()
+                LOGGER.info(f"Uploading splits for {file_}: {len(produced)} parts -> {[ospath.basename(p) for p in produced]}")
                 # Use TelegramUploader scoped to out_dir but filter to just this file's parts via a temp single-file dir
                 # Create a per-file upload dir with hardlinks/symlinks to avoid walking whole splits_root
                 per_file_upload_dir = ospath.join(splits_root, f"_upload_{idx}_{file_[:30]}")
