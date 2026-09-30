@@ -52,7 +52,7 @@ The **mirror-leech-telegram-bot-fuse** service is a high-throughput Telegram Mir
 |    +-- cookies.txt, credentials.json, token.pickle                     |          |
 |                                                                        |          |
 |  +---------------------------------------------------------------------+-------+  |
-|  | Docker Container: mirror-leech-telegram-bot-fuse-app-1 (or mltb-container)       |  |
+|  | Docker Container: anasty-rss-mhjoybots-fuse-app-1                                |  |
 |  | (Capabilities: CAP_SYS_ADMIN, Device: /dev/fuse, AppArmor: unconfined)       |  |
 |  |                                                                             |  |
 |  |  /app/downloads/ <----------------------------------------------------------+  |
@@ -101,7 +101,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: mirror-leech-telegram-bot-fuse-app-1
+    container_name: anasty-rss-mhjoybots-fuse-app-1
     command: bash start.sh
     restart: on-failure:5
     
@@ -385,8 +385,6 @@ The host runs multiple services. Verify port allocations to avoid collisions:
 
 | Port / Protocol | Service | Bound To | Scope / Conflict Risk |
 |---|---|---|---|
-| `71/tcp` | Production Bot (`mltb-container`) | `0.0.0.0:71` | Host port used by legacy prod bot (if any). |
-| `8071/tcp` | Production Bot Web (`mltb-container`) | `0.0.0.0:8071` | Host port used by legacy prod bot (if any). |
 | `3000/tcp` | Chatwoot Rails App | `0.0.0.0:3000` | Public Webhook/UI |
 | `5050/tcp` | Facebook Chatbot | `0.0.0.0:5050` | Public Webhook |
 | `8080/tcp` | Sub2API / SearXNG | Internal Bridge | Container-to-container |
@@ -498,31 +496,31 @@ Execute the following verification commands to certify operational readiness:
 
 #### Verification 1: Container Status & Health
 ```bash
-docker ps --filter name=mirror-leech-telegram-bot-fuse-app-1 --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}"
+docker ps --filter name=anasty-rss-mhjoybots-fuse-app-1 --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}"
 ```
 *Expected: Status is `Up ...`.*
 
 #### Verification 2: Storage Volume Mounts
 ```bash
-docker inspect mirror-leech-telegram-bot-fuse-app-1 --format '{{range .Mounts}}{{println .Source "->" .Destination}}{{end}}'
+docker inspect anasty-rss-mhjoybots-fuse-app-1 --format '{{range .Mounts}}{{println .Source "->" .Destination}}{{end}}'
 ```
 *Expected: `/srv/bot-storage/fuse_bot/downloads -> /app/downloads` and related volumes appear.*
 
 #### Verification 3: Disk Space & In-Container Mount Checks
 ```bash
-docker exec mirror-leech-telegram-bot-fuse-app-1 df -h /app/downloads
+docker exec anasty-rss-mhjoybots-fuse-app-1 df -h /app/downloads
 ```
 *Expected: Shows `/dev/vda4` mounted with ~84G size and ~47G available.*
 
 #### Verification 4: In-Container FUSE Capability Test
 ```bash
-docker exec -it mirror-leech-telegram-bot-fuse-app-1 bash -c "which archivemount && ls -la /dev/fuse"
+docker exec -it anasty-rss-mhjoybots-fuse-app-1 bash -c "which archivemount && ls -la /dev/fuse"
 ```
 *Expected: `/usr/bin/archivemount` exists and `/dev/fuse` is accessible.*
 
 #### Verification 5: Live Bot Startup Logs
 ```bash
-docker logs mirror-leech-telegram-bot-fuse-app-1 --tail 50
+docker logs anasty-rss-mhjoybots-fuse-app-1 --tail 50
 ```
 *Expected logs:*
 ```text
@@ -547,16 +545,16 @@ cd /root/mirror-leech-telegram-bot-fuse
 python3 -m py_compile bot/modules/zip_selector.py bot/helper/common.py
 
 # 2. Copy updated files into running container
-docker cp bot/modules/zip_selector.py mirror-leech-telegram-bot-fuse-app-1:/app/bot/modules/zip_selector.py
-docker cp bot/helper/common.py mirror-leech-telegram-bot-fuse-app-1:/app/bot/helper/common.py
-docker cp bot/helper/listeners/task_listener.py mirror-leech-telegram-bot-fuse-app-1:/app/bot/helper/listeners/task_listener.py
-docker cp bot/core/handlers.py mirror-leech-telegram-bot-fuse-app-1:/app/bot/core/handlers.py
+docker cp bot/modules/zip_selector.py anasty-rss-mhjoybots-fuse-app-1:/app/bot/modules/zip_selector.py
+docker cp bot/helper/common.py anasty-rss-mhjoybots-fuse-app-1:/app/bot/helper/common.py
+docker cp bot/helper/listeners/task_listener.py anasty-rss-mhjoybots-fuse-app-1:/app/bot/helper/listeners/task_listener.py
+docker cp bot/core/handlers.py anasty-rss-mhjoybots-fuse-app-1:/app/bot/core/handlers.py
 
 # 3. Clean in-container bytecode caches
-docker exec mirror-leech-telegram-bot-fuse-app-1 rm -rf /app/bot/__pycache__ /app/bot/helper/__pycache__
+docker exec anasty-rss-mhjoybots-fuse-app-1 rm -rf /app/bot/__pycache__ /app/bot/helper/__pycache__
 
 # 4. Restart container
-docker restart mirror-leech-telegram-bot-fuse-app-1
+docker restart anasty-rss-mhjoybots-fuse-app-1
 ```
 
 #### Method B: Full Clean Rebuild
@@ -575,7 +573,7 @@ If a download task crashes or is forcibly terminated while an archive is mounted
 #### Resolution Command
 ```bash
 # Find and unmount any orphaned FUSE points inside container
-docker exec mirror-leech-telegram-bot-fuse-app-1 bash -c '
+docker exec anasty-rss-mhjoybots-fuse-app-1 bash -c '
 for mnt in $(mount | grep archivemount | awk "{print \$3}"); do
     echo "Unmounting stale mount: $mnt"
     fusermount -u -z "$mnt" || umount -l "$mnt"
@@ -583,7 +581,7 @@ done
 '
 
 # Clean orphaned working directories
-docker exec mirror-leech-telegram-bot-fuse-app-1 bash -c '
+docker exec anasty-rss-mhjoybots-fuse-app-1 bash -c '
 find /app/downloads -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} + 2>/dev/null || true
 '
 ```
@@ -600,7 +598,7 @@ docker compose -f /root/mirror-leech-telegram-bot-fuse/docker-compose.yml down
 docker ps
 
 # If needed to restart a previous container:
-docker start mltb-container
+docker start <previous-container-name>
 
 # 3. Verify disk space on /srv/bot-storage (or your storage partition)
 df -h /srv/bot-storage

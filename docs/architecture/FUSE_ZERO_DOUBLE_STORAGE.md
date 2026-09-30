@@ -2,7 +2,7 @@
 
 > **Project:** `mirror-leech-telegram-bot-fuse` (Production Telegram Mirror/Leech Bot Fork based on `python-aria-mirror-bot` / Pyrogram / TDLib / aria2c / FUSE)  
 > **Environment:** Host VPS dedicated partition (e.g. `/srv/bot-storage` or `/path/to/storage`) | Ubuntu Linux / Docker  
-> **Containers:** Production bot `mltb-container` / `mltb-fuse-bot` (FUSE isolated)  
+> **Containers:** `anasty-rss-mhjoybots-fuse-app-1` (FUSE isolated, defined in `docker-compose.yml`)  
 > **Status:** LIVE PRODUCTION — Zero-Double-Storage FUSE engine, Native Telegram ZIP GUI Picker, Selective Streaming, Leech Isolation Guard, Small-File Pipeline & TDLib Multi-Session Concurrency Pool fully verified.
 
 ---
@@ -49,7 +49,7 @@ With an 84 GB SSD partition (`/dev/vda4` mounted on `/srv/bot-storage`) having ~
 5. **TDLib Multi-Session Concurrency Pool:** High-speed parallel Telegram userbot upload engine supporting round-robin rotation over multiple authenticated TDLib SQLite session databases (`tdlib_user_*`) for multi-worker Telegram ingress up to 4 GB per file.
 
 ### 1.3 100% Deterministic Reproducibility Guarantee
-Every code path, CLI invocation, FUSE option, mount regex, and configuration variable documented here corresponds to verified, live-tested code running in container `mirror-leech-fuse-app-1` on host `/root/mirror-leech-telegram-bot-fuse`.
+Every code path, CLI invocation, FUSE option, mount regex, and configuration variable documented here corresponds to verified, live-tested code running in container `anasty-rss-mhjoybots-fuse-app-1` on host `/root/mirror-leech-telegram-bot-fuse`.
 
 ---
 
@@ -522,12 +522,12 @@ def _patch_tdjson_binding(cls):
 
 ### 10.1 Production Container Status Assertion
 ```bash
-docker ps --filter "name=mirror-leech-fuse-app-1" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+docker ps --filter "name=anasty-rss-mhjoybots-fuse-app-1" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
 ```
 **Actual Output:**
 ```
 NAMES                            IMAGE          STATUS          PORTS
-mirror-leech-fuse-app-1   f0233466b234   Up 58 minutes   
+anasty-rss-mhjoybots-fuse-app-1   f0233466b234   Up 58 minutes   
 ```
 
 ### 10.2 Real Log Stream Verification Assertions
@@ -578,24 +578,24 @@ python3 -m py_compile /root/mirror-leech-telegram-bot-fuse/bot/modules/zip_selec
                       /root/mirror-leech-telegram-bot-fuse/bot/core/handlers.py
 
 # 2. Synchronize files into running container
-docker cp /root/mirror-leech-telegram-bot-fuse/bot/modules/zip_selector.py mirror-leech-fuse-app-1:/app/bot/modules/zip_selector.py
-docker cp /root/mirror-leech-telegram-bot-fuse/bot/helper/listeners/task_listener.py mirror-leech-fuse-app-1:/app/bot/helper/listeners/task_listener.py
-docker cp /root/mirror-leech-telegram-bot-fuse/bot/helper/common.py mirror-leech-fuse-app-1:/app/bot/helper/common.py
-docker cp /root/mirror-leech-telegram-bot-fuse/bot/core/handlers.py mirror-leech-fuse-app-1:/app/bot/core/handlers.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/modules/zip_selector.py anasty-rss-mhjoybots-fuse-app-1:/app/bot/modules/zip_selector.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/helper/listeners/task_listener.py anasty-rss-mhjoybots-fuse-app-1:/app/bot/helper/listeners/task_listener.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/helper/common.py anasty-rss-mhjoybots-fuse-app-1:/app/bot/helper/common.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/core/handlers.py anasty-rss-mhjoybots-fuse-app-1:/app/bot/core/handlers.py
 
 # 3. Clean stale pycache and restart FUSE bot container
-docker exec mirror-leech-fuse-app-1 find /app/bot -name "__pycache__" -exec rm -rf {} +
-docker restart mirror-leech-fuse-app-1
+docker exec anasty-rss-mhjoybots-fuse-app-1 find /app/bot -name "__pycache__" -exec rm -rf {} +
+docker restart anasty-rss-mhjoybots-fuse-app-1
 
 # 4. Verify clean startup
 sleep 4
-docker logs mirror-leech-fuse-app-1 --tail 30 | grep "Bot Started"
+docker logs anasty-rss-mhjoybots-fuse-app-1 --tail 30 | grep "Bot Started"
 ```
 
 ### 11.2 Real-Time Monitoring & Diagnostic Log Tailing
 ```bash
 # Monitor live streaming, FUSE mounts, and upload progress
-docker logs mirror-leech-fuse-app-1 --tail 100 --follow | grep -E "Aria2Download|onDownloadComplete|FUSE extract|Zip picker|Streaming split|Telegram upload|Leech Completed|Leech mode"
+docker logs anasty-rss-mhjoybots-fuse-app-1 --tail 100 --follow | grep -E "Aria2Download|onDownloadComplete|FUSE extract|Zip picker|Streaming split|Telegram upload|Leech Completed|Leech mode"
 ```
 
 ### 11.3 Emergency Mount Inspection & Manual Cleanup Protocol
@@ -606,7 +606,7 @@ If a task process is abruptly killed (`SIGKILL`) leaving orphaned FUSE mounts in
 cat /proc/mounts | grep archivemount
 
 # 2. Force unmount inside container and host
-docker exec mltb-fuse-bot bash -c 'for m in $(grep archivemount /proc/mounts | awk "{print \$2}"); do fusermount -uz "$m"; done'
+docker exec anasty-rss-mhjoybots-fuse-app-1 bash -c 'for m in $(grep archivemount /proc/mounts | awk "{print \$2}"); do fusermount -uz "$m"; done'
 
 # 3. Remove orphaned task download directories on host storage
 rm -rf /srv/bot-storage/fuse_bot/downloads/* # or /path/to/storage/fuse_bot/downloads/*

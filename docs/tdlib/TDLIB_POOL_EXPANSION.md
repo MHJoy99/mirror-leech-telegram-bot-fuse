@@ -42,7 +42,7 @@ Executing: python3 setup_tdlib_pool.py 3 /app/tdlib_user
 Attach to the running container and invoke `setup_tdlib_pool.py` with the requested expansion count:
 
 ```bash
-docker exec -it mirror-leech-telegram-bot-fuse-app-1 bash -c "source /app/mltbenv/bin/activate && python3 setup_tdlib_pool.py 4 /app/tdlib_user"
+docker exec -it anasty-rss-mhjoybots-fuse-app-1 bash -c "source /app/mltbenv/bin/activate && python3 setup_tdlib_pool.py 4 /app/tdlib_user"
 ```
 
 ### Step 2: Complete Authentication Prompts

@@ -98,7 +98,7 @@ The dual-destination pipeline enforces strict isolation boundaries to guarantee 
 | Failure / Edge Case Scenario | Engine Reaction | User Impact |
 | :--- | :--- | :--- |
 | **Telegram Upload Fails** | Task halts immediately; Drive stage cancelled. | Standard Telegram error message returned. |
-| **Google Drive Token Expired / Invalid** | Logs warning, skips Drive stage, marks TG success. | Task succeeds on Telegram; Drive skipped in summary. |
+| **Google Drive Token Expired / Revoked (`invalid_grant`)** | Logs the error, Drive stage fails, Telegram delivery is unaffected. | Task succeeds on Telegram; the status card shows `Google Drive: Failed ((invalid_grant: Token has been expired or revoked.))`. Regenerate the token per the [Drive Authentication Runbook](../storage/GDRIVE_OAUTH_SETUP.md). |
 | **Google Drive Quota Exceeded (`403 / 507`)** | Logs warning, completes Telegram task cleanly. | File is delivered on Telegram with partial success note. |
 | **Duplicate File on Drive** | Drive upload skipped according to duplicate policy. | Leech succeeds; Drive reported as `Duplicate - Skipped`. |
 | **Interactive ZIP Picker (`-s`) Active** | Secondary Drive backup automatically disabled. | Selective leech delivers chosen files without cloud mirror. |

@@ -55,7 +55,7 @@ All subsystem specifications and runbooks are available in `docs/`:
 ### 2.3 Deployment & Storage (`docs/deployment/`, `docs/storage/`)
 - [**Production Deployment Guide**](docs/deployment/PRODUCTION_DEPLOYMENT.md): Complete Docker Compose deployment runbook with `/dev/fuse` and `SYS_ADMIN` capability flags.
 - [**Storage Partition Setup & Bind Layout**](docs/storage/STORAGE_PARTITION_SETUP.md): Dedicated disk partition layout (`/dev/vda4` -> `/srv/bot-storage`) and directory permissions.
-- [**Google Drive OAuth Setup**](docs/storage/GDRIVE_OAUTH_SETUP.md): Google Drive API v3 OAuth token and Service Account setup.
+- [**Google Drive OAuth Setup**](docs/storage/GDRIVE_OAUTH_SETUP.md): Google Drive authentication runbook: OAuth token regeneration, MongoDB token storage, revocation causes, and keep-alive watchdog.
 
 ---
 
@@ -469,7 +469,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: mirror-leech-fuse-app-1
+    container_name: anasty-rss-mhjoybots-fuse-app-1
     restart: unless-stopped
     cap_add:
       - SYS_ADMIN

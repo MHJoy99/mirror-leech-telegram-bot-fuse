@@ -461,7 +461,7 @@ Explore deep technical architecture specifications, configuration manuals, and s
 - [**TDLib One-Click Cloner Reference**](docs/tdlib/TDLIB_POOL_ONE_CLICK.md)
 - [**Production Deployment & Hardening Guide**](docs/deployment/PRODUCTION_DEPLOYMENT.md)
 - [**Storage Partition Setup & Bind Layout**](docs/storage/STORAGE_PARTITION_SETUP.md)
-- [**Google Drive OAuth Setup Manual**](docs/storage/GDRIVE_OAUTH_SETUP.md)
+- [**Google Drive Authentication Runbook**](docs/storage/GDRIVE_OAUTH_SETUP.md)
 
 ---
 

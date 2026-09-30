@@ -51,7 +51,7 @@ The `clone_tdlib_pool.py` tool provides zero-interaction replication of an alrea
 ### 2.1 Basic Usage
 
 ```bash
-docker exec -it mirror-leech-telegram-bot-fuse-app-1 python3 clone_tdlib_pool.py [COUNT] [BASE_DIR] [--config CONFIG_FILE]
+docker exec -it anasty-rss-mhjoybots-fuse-app-1 python3 clone_tdlib_pool.py [COUNT] [BASE_DIR] [--config CONFIG_FILE]
 ```
 
 ### 2.2 CLI Arguments
@@ -71,7 +71,7 @@ docker exec -it mirror-leech-telegram-bot-fuse-app-1 python3 clone_tdlib_pool.py
 Run the cloner to generate 8 slots and patch `config.py`:
 
 ```bash
-docker exec -it mirror-leech-telegram-bot-fuse-app-1 python3 clone_tdlib_pool.py 8 /app/tdlib_user --config /app/config.py
+docker exec -it anasty-rss-mhjoybots-fuse-app-1 python3 clone_tdlib_pool.py 8 /app/tdlib_user --config /app/config.py
 ```
 
 #### Output Trace:

@@ -14,10 +14,10 @@ This file is the primary reference for the container architecture, live bot oper
 
 | Container Name | Purpose | Base Image / Port Bindings | Host Mount Directory | Container Target |
 |---|---|---|---|---|
-| `mltb-fuse-bot` | **FUSE Zero-Storage & Telegram ZIP Picker Bot** | Docker Image / Isolated (No port conflicts) | `/srv/bot-storage/fuse_bot/` | `/app/` |
-| `mltb-container` | Production Mirror Bot | `mltb-container-image` / Isolated ports | `/srv/bot-storage/fuse_bot/app` | `/app` |
-| `facebook-chatbot` | Facebook Messenger Webhook Service | Python Gunicorn / `0.0.0.0:5050->5050` | Standalone Docker Volume | `/app` |
-| `support-ticket-app` | Customer Support & Ticketing Engine | Support App Stack / `0.0.0.0:3000` | Postgres + Redis Stack | `/app` |
+| `anasty-rss-mhjoybots-fuse-app-1` | **FUSE Zero-Storage & Telegram ZIP Picker Bot** (this repo's `docker-compose.yml`) | Image built from `Dockerfile` / no published ports | `/srv/bot-storage/fuse_bot/` | `/app/` |
+| `serene_maxwell` | Production Mirror/Leech Bot (separate deployment of the same codebase, own `token.pickle` and MongoDB) | Image built from `Dockerfile` / no published ports | `/srv/bot-storage/serene_maxwell/app/` | `/app/` |
+| `mhjoy-facebook-chatbot` | Facebook Messenger Webhook Service | Python Gunicorn / `0.0.0.0:5050->5050` | Standalone Docker Volume | `/app` |
+| `chatwoot-chatwoot-rails-1` | Customer Support & Ticketing Engine (Chatwoot) | Chatwoot / `0.0.0.0:3000->3000` | Postgres + Redis Stack | `/app` |
 
 ---
 
@@ -103,29 +103,29 @@ python3 -m py_compile /root/mirror-leech-telegram-bot-fuse/bot/modules/zip_selec
                       /root/mirror-leech-telegram-bot-fuse/bot/core/handlers.py
 
 # 2. Synchronize files into running container
-docker cp /root/mirror-leech-telegram-bot-fuse/bot/modules/zip_selector.py mirror-leech-fuse-app-1:/app/bot/modules/zip_selector.py
-docker cp /root/mirror-leech-telegram-bot-fuse/bot/helper/listeners/task_listener.py mirror-leech-fuse-app-1:/app/bot/helper/listeners/task_listener.py
-docker cp /root/mirror-leech-telegram-bot-fuse/bot/helper/common.py mirror-leech-fuse-app-1:/app/bot/helper/common.py
-docker cp /root/mirror-leech-telegram-bot-fuse/bot/core/handlers.py mirror-leech-fuse-app-1:/app/bot/core/handlers.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/modules/zip_selector.py anasty-rss-mhjoybots-fuse-app-1:/app/bot/modules/zip_selector.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/helper/listeners/task_listener.py anasty-rss-mhjoybots-fuse-app-1:/app/bot/helper/listeners/task_listener.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/helper/common.py anasty-rss-mhjoybots-fuse-app-1:/app/bot/helper/common.py
+docker cp /root/mirror-leech-telegram-bot-fuse/bot/core/handlers.py anasty-rss-mhjoybots-fuse-app-1:/app/bot/core/handlers.py
 
 # 3. Purge bytecode caches and restart container
-docker exec mirror-leech-fuse-app-1 find /app/bot -name "__pycache__" -exec rm -rf {} +
-docker restart mirror-leech-fuse-app-1
+docker exec anasty-rss-mhjoybots-fuse-app-1 find /app/bot -name "__pycache__" -exec rm -rf {} +
+docker restart anasty-rss-mhjoybots-fuse-app-1
 
 # 4. Verify clean boot in logs
 sleep 4
-docker logs mirror-leech-fuse-app-1 --tail 30 | grep "Bot Started"
+docker logs anasty-rss-mhjoybots-fuse-app-1 --tail 30 | grep "Bot Started"
 ```
 
 ### 4.2 Tailing Live Logs
 ```bash
-docker logs mirror-leech-fuse-app-1 --tail 100 --follow | grep -E "Aria2Download|onDownloadComplete|FUSE extract|Zip picker|Streaming split|Telegram upload|Leech Completed|Leech mode"
+docker logs anasty-rss-mhjoybots-fuse-app-1 --tail 100 --follow | grep -E "Aria2Download|onDownloadComplete|FUSE extract|Zip picker|Streaming split|Telegram upload|Leech Completed|Leech mode"
 ```
 
 ### 4.3 Emergency FUSE Unmount & Space Recovery
 ```bash
 # Unmount all active archivemount points
-docker exec mltb-fuse-bot bash -c 'for m in $(grep archivemount /proc/mounts | awk "{print \$2}"); do fusermount -uz "$m"; done'
+docker exec anasty-rss-mhjoybots-fuse-app-1 bash -c 'for m in $(grep archivemount /proc/mounts | awk "{print \$2}"); do fusermount -uz "$m"; done'
 
 # Clean host task downloads directory
 rm -rf /srv/bot-storage/fuse_bot/downloads/* # or /path/to/storage/fuse_bot/downloads/*

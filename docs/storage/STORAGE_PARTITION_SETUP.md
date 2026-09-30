@@ -2,6 +2,8 @@
 
 Date: 2026-03-27
 
+> **Historical record.** This documents the March 2026 storage migration. Container and image names below (`mltb-container`, `mltb-container-image`) reflect that layout and no longer exist. Current containers are listed in [System Architecture](../architecture/SYSTEM_ARCHITECTURE.md).
+
 ## Why This Was Done
 
 The VPS disk is `100 GiB`, but the root filesystem on `/dev/vda2` only uses about `63 GiB`.

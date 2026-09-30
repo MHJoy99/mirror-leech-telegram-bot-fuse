@@ -33,7 +33,7 @@ mirror-leech-telegram-bot-fuse (`MHJoy99/mirror-leech-telegram-bot-fuse`) is an 
 ### Deployment & Storage (`docs/deployment/`, `docs/storage/`)
 - [Production Deployment Guide](docs/deployment/PRODUCTION_DEPLOYMENT.md): Complete Docker Compose deployment runbook with `/dev/fuse` and `SYS_ADMIN` capability flags.
 - [Storage Partition Setup & Bind Layout](docs/storage/STORAGE_PARTITION_SETUP.md): Dedicated disk partition layout (`/dev/vda4` -> `/srv/bot-storage`) and directory permissions.
-- [Google Drive OAuth Setup](docs/storage/GDRIVE_OAUTH_SETUP.md): Google Drive API v3 OAuth token and Service Account setup.
+- [Google Drive OAuth Setup](docs/storage/GDRIVE_OAUTH_SETUP.md): Google Drive authentication runbook: OAuth token regeneration, MongoDB token storage, revocation causes, and keep-alive watchdog.
 
 ## Quickstart Guide
 

@@ -39,8 +39,8 @@ Welcome to the comprehensive documentation index for **mirror-leech-telegram-bot
 ### 4. 💽 Storage & Cloud Integrations (`docs/storage/`)
 * [**Storage Partition Setup & Bind Layout**](storage/STORAGE_PARTITION_SETUP.md)
   * Dedicated disk partition layout, mount point permissions, and persistent volume directory structure.
-* [**Google Drive OAuth & Service Account Setup**](storage/GDRIVE_OAUTH_SETUP.md)
-  * Guide for Google Drive API v3 OAuth token generation, Service Account rotation, and quota management.
+* [**Google Drive Authentication Runbook**](storage/GDRIVE_OAUTH_SETUP.md)
+  * Why OAuth (not Service Accounts) for personal Drive, why refresh tokens die, headless token regeneration, the file + MongoDB dual-storage gotcha, and the daily keep-alive/alert watchdog (`scripts/oauth_keepalive_watch.py`).
 
 ---
 
@@ -63,5 +63,5 @@ docs/
 │   └── PRODUCTION_DEPLOYMENT.md             # Docker Compose & Systemd Runbook
 └── storage/
     ├── STORAGE_PARTITION_SETUP.md           # Dedicated VFS Partition & Bindings
-    └── GDRIVE_OAUTH_SETUP.md                # Google Drive API v3 Auth & Quotas
+    └── GDRIVE_OAUTH_SETUP.md                # Google Drive Auth Runbook & Watchdog
 ```
