@@ -62,3 +62,15 @@ Checks every 30 s and cancels through the task's normal cancel path (same as `/c
 ## Re-applying after a container rebuild
 
 Backups in `/srv/bot-storage/serene_maxwell/patches/`: `status_export.py`, `__main__.py.{before,after}-status`, `common.py.{before,after}-drive-gate`. The thumbnail patch (global fallback in both uploaders) and the config edits must be redone by hand. Always restart only when `/api/status` shows `active` and `queued` at 0.
+
+## Helper-bot upload pool (2026-10-01)
+
+Telegram uploads were slow because every upload went through user accounts whose home data center was about 170 ms from the server, and Telegram rate-limited them. Bot accounts live on a near data center and measured 15-19 MB/s each, and the speeds add up when several bots upload different files at the same time.
+
+- `bot/core/helper_pool.py`: extra bots (`HELPER_BOT_TOKENS`) that upload files in parallel with the main bot. One file is uploaded by one bot; different files go to different bots, least loaded first. The main bot is a member of the pool too.
+- The main bot keeps the dashboard and all commands. Helpers receive no updates and post only the uploaded files.
+- Safe fallbacks: a helper that cannot post in the chat, is rate-limited or errors hands the file back to the main bot. Media groups and private chats always use the main bot.
+- Sessions are stored on disk so a restart does not log the bots in again (Telegram rate-limits bot logins hard).
+- Kill switch without a restart: create the file `/app/helper_off` in the container.
+- The status API lists per-bot load and last speed under `uploaders`.
+- Also fixed: a retried TDLib upload counted its bytes twice, so the dashboard showed over 100%.
