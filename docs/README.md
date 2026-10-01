@@ -34,6 +34,9 @@ Welcome to the comprehensive documentation index for **mirror-leech-telegram-bot
 * [**Production Deployment Guide**](deployment/PRODUCTION_DEPLOYMENT.md)
   * Complete guide for production deployment using Docker Compose with `SYS_ADMIN` and `/dev/fuse` bindings, systemd service units, and resource limits.
 
+* [**@mhjoyleechdc_bot Live Customizations**](deployment/LEECHDC_BOT_CUSTOMIZATIONS.md)
+  * Container-level changes: global thumbnail, universal prefix, queue limit, status API, Drive auto-backup allowlist, and how to re-apply them.
+
 ---
 
 ### 4. 💽 Storage & Cloud Integrations (`docs/storage/`)
@@ -60,7 +63,8 @@ docs/
 │   ├── TDLIB_POOL_ONE_CLICK.md              # One-Click Session Cloning
 │   └── TDLIB_UPLOAD_PARALLELISM.md          # Multi-Part Concurrency Architecture
 ├── deployment/
-│   └── PRODUCTION_DEPLOYMENT.md             # Docker Compose & Systemd Runbook
+│   ├── PRODUCTION_DEPLOYMENT.md             # Docker Compose & Systemd Runbook
+│   └── LEECHDC_BOT_CUSTOMIZATIONS.md        # @mhjoyleechdc_bot live changes
 └── storage/
     ├── STORAGE_PARTITION_SETUP.md           # Dedicated VFS Partition & Bindings
     └── GDRIVE_OAUTH_SETUP.md                # Google Drive Auth Runbook & Watchdog
