@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a2236"/><stop offset="1" stop-color="#06111c"/></linearGradient>
+<linearGradient id="core" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4cc3f7"/><stop offset="1" stop-color="#0b6fb0"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#37b8f2" stop-opacity=".5"/><stop offset="1" stop-color="#37b8f2" stop-opacity="0"/></radialGradient>
+<pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#2b5a7c" stroke-opacity=".25"/></pattern>
+</defs>
+<rect width="1200" height="630" fill="url(#bg)"/><rect width="1200" height="630" fill="url(#grid)"/>
+<circle cx="900" cy="300" r="300" fill="url(#glow)"/>
+<g font-family="Segoe UI, Arial, sans-serif">
+<rect x="64" y="64" width="64" height="64" rx="16" fill="url(#core)"/>
+<rect x="76" y="77" width="40" height="8" rx="4" fill="#fff"/><rect x="82" y="90" width="28" height="8" rx="4" fill="#fff" opacity=".75"/><path d="M96 118 84 106h8v-2h8v2h8z" fill="#fff"/>
+<text x="148" y="108" font-size="30" font-weight="700" fill="#cfeaf9">mirror-leech-telegram-bot-fuse</text>
+<text x="64" y="250" font-size="68" font-weight="800" fill="#ffffff">Telegram mirror</text>
+<text x="64" y="330" font-size="68" font-weight="800" fill="#ffffff">&amp; leech bot with</text>
+<text x="64" y="410" font-size="68" font-weight="800" fill="#4cc3f7">FUSE zero-double-</text>
+<text x="64" y="490" font-size="68" font-weight="800" fill="#4cc3f7">storage</text>
+<text x="64" y="560" font-size="28" fill="#9fc3d9">archivemount · inline ZIP picker · TDLib session pool</text>
+<text x="64" y="598" font-size="22" fill="#6c97b2">Open source · GPL-3.0 · fork of mirror-leech-telegram-bot</text>
+</g>
+<!-- flow -->
+<g fill="none" stroke="#2f7aa6" stroke-width="3" stroke-dasharray="6 9">
+<path d="M960 120 V175"/><path d="M960 380 C960 410 812 405 812 440"/><path d="M960 380 C960 410 904 405 904 440"/><path d="M960 380 C960 410 996 405 996 440"/><path d="M960 380 C960 410 1088 405 1088 440"/>
+<path d="M904 496 C904 540 865 540 865 572"/><path d="M996 496 C996 540 1085 540 1085 572"/>
+</g>
+<rect x="850" y="60" width="220" height="60" rx="16" fill="#0d2336" stroke="#2f7aa6" stroke-width="2"/>
+<rect x="866" y="72" width="28" height="36" rx="6" fill="#229ed9"/><text x="906" y="98" font-family="Segoe UI, Arial" font-size="24" font-weight="700" fill="#e6f3fb">archive.zip</text>
+<circle cx="960" cy="295" r="120" fill="none" stroke="#37b8f2" stroke-width="3" stroke-dasharray="3 12" stroke-linecap="round"/>
+<circle cx="960" cy="295" r="92" fill="url(#core)"/>
+<text x="960" y="298" text-anchor="middle" font-family="Segoe UI, Arial" font-size="42" font-weight="800" fill="#fff">FUSE</text>
+<text x="960" y="326" text-anchor="middle" font-family="Consolas, monospace" font-size="18" fill="#e6f6ff">archivemount</text>
+<g font-family="Segoe UI, Arial" font-size="18" font-weight="700" fill="#e6f3fb" text-anchor="middle">
+<rect x="770" y="440" width="84" height="56" rx="12" fill="#0d2336" stroke="#37b8f2" stroke-width="3"/><text x="812" y="474">user 1</text>
+<rect x="862" y="440" width="84" height="56" rx="12" fill="#0d2336" stroke="#2f7aa6" stroke-width="2"/><text x="904" y="474">user 2</text>
+<rect x="954" y="440" width="84" height="56" rx="12" fill="#0d2336" stroke="#2f7aa6" stroke-width="2"/><text x="996" y="474">user 3</text>
+<rect x="1046" y="440" width="84" height="56" rx="12" fill="#0d2336" stroke="#2f7aa6" stroke-width="2"/><text x="1088" y="474">user 4</text>
+</g>
+<g font-family="Segoe UI, Arial" font-size="20" font-weight="700" fill="#e6f3fb" text-anchor="middle">
+<rect x="790" y="572" width="150" height="44" rx="12" fill="#229ed9"/><text x="865" y="601">Telegram</text>
+<rect x="1000" y="572" width="170" height="44" rx="12" fill="#0d2336" stroke="#2f7aa6" stroke-width="2"/><text x="1085" y="601">Google Drive</text>
+</g>
+<circle cx="960" cy="165" r="6" fill="#4cc3f7"/><circle cx="960" cy="190" r="6" fill="#4cc3f7" opacity=".6"/>
+</svg>

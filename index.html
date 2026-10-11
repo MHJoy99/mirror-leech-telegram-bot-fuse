@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>mirror-leech-telegram-bot-fuse: Telegram Mirror Bot</title>
+<meta name="description" content="Open-source Telegram mirror and leech bot with Linux FUSE zero-double-storage archive mounting, an inline ZIP picker and a TDLib multi-session upload pool.">
+<link rel="canonical" href="https://mhjoy99.github.io/mirror-leech-telegram-bot-fuse/">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="author" content="MHJoy99">
+<meta name="keywords" content="Telegram mirror bot, Telegram leech bot, FUSE archivemount, zero double storage, TDLib session pool, ZIP picker, mirror-leech-telegram-bot fork, Google Drive backup">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f6fbff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#07131e" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="site.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="mirror-leech-telegram-bot-fuse">
+<meta property="og:title" content="mirror-leech-telegram-bot-fuse: Telegram Mirror Bot">
+<meta property="og:description" content="Open-source Telegram mirror and leech bot with Linux FUSE zero-double-storage archive mounting, an inline ZIP picker and a TDLib multi-session upload pool.">
+<meta property="og:url" content="https://mhjoy99.github.io/mirror-leech-telegram-bot-fuse/">
+<meta property="og:image" content="https://mhjoy99.github.io/mirror-leech-telegram-bot-fuse/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Files flowing through a FUSE zero-double-storage engine and a TDLib session pool into Telegram and Google Drive">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="mirror-leech-telegram-bot-fuse: Telegram Mirror Bot">
+<meta name="twitter:description" content="Open-source Telegram mirror and leech bot with Linux FUSE zero-double-storage archive mounting, an inline ZIP picker and a TDLib multi-session upload pool.">
+<meta name="twitter:image" content="https://mhjoy99.github.io/mirror-leech-telegram-bot-fuse/og-image.png">
+<meta name="twitter:image:alt" content="Files flowing through a FUSE zero-double-storage engine and a TDLib session pool into Telegram and Google Drive">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "@id": "https://mhjoy99.github.io/mirror-leech-telegram-bot-fuse/#app",
+  "name": "mirror-leech-telegram-bot-fuse",
+  "alternateName": "MHJoy99 mirror-leech-telegram-bot FUSE",
+  "url": "https://mhjoy99.github.io/mirror-leech-telegram-bot-fuse/",
+  "description": "Open-source Telegram mirror and leech bot with Linux FUSE zero-double-storage archive mounting, an inline Telegram ZIP picker, a TDLib multi-session upload pool and dual Telegram plus Google Drive delivery.",
+  "applicationCategory": "UtilitiesApplication",
+  "applicationSubCategory": "Telegram mirror and leech bot",
+  "operatingSystem": "Linux",
+  "softwareVersion": "2.0.0",
+  "softwareRequirements": "Linux host with /dev/fuse, Docker Engine 24+ and Docker Compose v2, Python 3.12+, Telegram bot token and API credentials",
+  "programmingLanguage": "Python",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+  "isAccessibleForFree": true,
+  "codeRepository": "https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse",
+  "downloadUrl": "https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse",
+  "installUrl": "https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse#-quickstart--deployment",
+  "image": "https://mhjoy99.github.io/mirror-leech-telegram-bot-fuse/og-image.png",
+  "featureList": [
+    "Linux FUSE zero-double-storage archive mounting with archivemount (readonly,nosave)",
+    "Inline Telegram ZIP picker with pagination and a 60-second auto-continue timer",
+    "TDLib multi-session round-robin upload pool",
+    "Dual Telegram leech plus asynchronous Google Drive backup",
+    "WZML dynamic captions from ffprobe metadata",
+    "aria2c, qBittorrent, SABnzbd, JDownloader2 and yt-dlp ingestion",
+    "Google Drive, Mega.nz and Rclone cloud destinations",
+    "Docker and Docker Compose deployment"
+  ],
+  "author": {
+    "@type": "Person",
+    "name": "MHJoy99",
+    "url": "https://github.com/MHJoy99"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://mhjoy99.github.io/mirror-leech-telegram-bot-fuse/#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How does FUSE achieve zero double storage on huge archives?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Conventional Telegram mirror bots extract the whole archive to disk with 7z x, which can double storage use (for example a 35 GB ZIP plus 35 GB of extracted files). mirror-leech-telegram-bot-fuse instead mounts the archive read-only through a virtual file system directory with archivemount -o readonly,nosave. Files are read on the fly and uploaded one after another, so total disk use is bounded by the archive size plus a single active split chunk of about 2 GB."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does archivemount decompress the whole archive into RAM?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. According to the README, archivemount only parses the archive index headers into memory, roughly 20 to 50 MB. When ffmpeg or the uploader reads a specific file offset, archivemount seeks to that byte range and decompresses only the active stream buffer, so memory stays small and stable during multi-gigabyte transfers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does the TDLib multi-session pool improve uploads?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Telegram throttles upload concurrency per account and can issue FloodWait penalties under heavy load. The pool distributes multi-part uploads across several authenticated userbot sessions (tdlib_user, tdlib_user_2, tdlib_user_3 and so on) in round-robin rotation, and supports files up to 4 GB with a Premium account. The setup guide notes that linear speed-up needs a distinct Telegram account for each pool slot. Sessions cloned from one account share that account’s bandwidth quota."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens if a file inside a mounted ZIP is larger than 2 GB?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The streaming engine reads the file from the FUSE mount, writes split chunks one at a time into a temporary workspace, uploads each chunk through the worker pool, and purges each chunk from disk before starting the next. Disk usage therefore does not balloon, whatever the archive size. The split size is set with LEECH_SPLIT_SIZE (2 GB by default, 4 GB for Telegram Premium)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does the dual Telegram leech plus Google Drive backup work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When it is configured, the bot first completes the primary Telegram leech and then starts an asynchronous secondary upload to Google Drive. The two destinations have independent failure boundaries: if Google Drive hits a quota limit or a timeout, the Telegram leech is still completed and delivered."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why are small files uploaded one at a time?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The archivemount daemon is single-threaded. Opening many concurrent file handles on the FUSE layer causes I/O contention and stalled transfers. For small files the bot uses an anti-choke sequential dispatcher that symlinks each file into an isolated temporary workspace and uploads them one by one."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens if I do not answer the ZIP picker?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The inline ZIP picker has a 60-second safety timer. Every file starts selected, and if nobody confirms in time the picker continues with the current selection so that automated batch tasks do not freeze indefinitely. Tapping Cancel Task aborts the task instead."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What do I need to run it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A Linux host (Ubuntu 22.04 or 24.04 LTS or Debian 12 recommended, kernel 6.8+), Docker Engine 24+ with Docker Compose v2, and FUSE support through /dev/fuse. The compose file must grant cap_add SYS_ADMIN and map the /dev/fuse device. You also need a bot token from @BotFather and API credentials from my.telegram.org. The bot targets Python 3.12+ and ships a Dockerfile."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this a fork of mirror-leech-telegram-bot, and what is the license?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. It builds on python-aria-mirror-bot and anasty17’s mirror-leech-telegram-bot and adds the FUSE engine, ZIP picker, TDLib pool, dual backup and WZML captions. It is distributed under the GNU General Public License v3.0 and maintained by MHJoy99 and the MHJoyBots team. It is not affiliated with Telegram or Google."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which download engines and cloud destinations are supported?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ingestion covers direct HTTP(S) links, BitTorrent through aria2c and qBittorrent, Usenet through SABnzbd, JDownloader2, Mega and yt-dlp for video and audio sites. Destinations include Telegram chats and channels, Google Drive (OAuth or Service Accounts, Team Drives) and Rclone remotes."
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "MHJoy99 projects",
+      "item": "https://github.com/MHJoy99"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "mirror-leech-telegram-bot-fuse",
+      "item": "https://mhjoy99.github.io/mirror-leech-telegram-bot-fuse/"
+    }
+  ]
+}
+</script>
+<script>document.documentElement.className+=' js'</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="mirror-leech-telegram-bot-fuse home"><img src="favicon.svg" width="30" height="30" alt=""><span>mirror-leech-telegram-bot-fuse</span></a>
+    <nav class="nav" aria-label="Primary">
+      <a class="hide-s" href="#features">Features</a>
+      <a class="hide-s" href="#how">How it works</a>
+      <a class="hide-s" href="#pool">TDLib pool</a>
+      <a class="hide-s" href="#quickstart">Quick start</a>
+      <a href="#faq">FAQ</a>
+      <a class="gh" href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow"><i></i> Open source &middot; GPL-3.0 &middot; fork of mirror-leech-telegram-bot</span>
+      <h1>Telegram mirror &amp; leech bot with <span class="grad">FUSE zero-double-storage</span></h1>
+      <p class="lead"><strong>mirror-leech-telegram-bot-fuse</strong> mounts big archives straight into the Linux virtual file system with <code>archivemount</code> instead of extracting them to disk, lets you pick files from a Telegram inline keyboard, and uploads through a <strong>TDLib multi-session pool</strong> to Telegram, Google Drive or Rclone.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.76 2.69 1.25 3.35.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.23 2.75.11 3.04.74.8 1.19 1.83 1.19 3.08 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>Get it on GitHub</a>
+        <a class="btn" href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/README.md">Read the docs</a>
+      </div>
+      <ul class="chips" aria-label="At a glance">
+        <li><b>Python</b> 3.12+</li>
+        <li><b>Docker</b> + Compose v2</li>
+        <li><b>Linux</b> with /dev/fuse</li>
+        <li><b>License</b> GPL-3.0</li>
+        <li><b>Version</b> 2.0.0</li>
+      </ul>
+    </div>
+
+    <div class="hero-vis">
+      <svg viewBox="0 0 520 636" role="img" aria-labelledby="hv-t hv-d" xmlns="http://www.w3.org/2000/svg">
+        <title id="hv-t">Animated pipeline: archive, FUSE engine, TDLib pool, Telegram and cloud</title>
+        <desc id="hv-d">A downloaded archive is mounted by the FUSE engine without extraction. Files then stream through four round-robin TDLib sessions to Telegram, with an asynchronous backup to Google Drive and Rclone.</desc>
+        <defs>
+          <linearGradient id="core" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#37b8f2"/><stop offset="1" stop-color="#0b6fb0"/></linearGradient>
+          <radialGradient id="glow"><stop offset="0" stop-color="#37b8f2" stop-opacity=".55"/><stop offset="1" stop-color="#37b8f2" stop-opacity="0"/></radialGradient>
+        </defs>
+        <text class="v-s" x="260" y="20" text-anchor="middle" font-size="14">aria2c · qBittorrent · SABnzbd · JDownloader2 · yt-dlp</text>
+
+        <!-- source -->
+        <rect class="v-card" x="110" y="32" width="300" height="76" rx="18"/>
+        <g transform="translate(134,48)"><rect width="36" height="44" rx="7" fill="#229ed9"/><rect x="15" y="4" width="6" height="5" fill="#fff" opacity=".9"/><rect x="15" y="12" width="6" height="5" fill="#fff" opacity=".6"/><rect x="15" y="20" width="6" height="5" fill="#fff" opacity=".9"/><rect x="14" y="30" width="8" height="9" rx="2" fill="#fff"/></g>
+        <text class="v-t" x="188" y="66" font-size="20" font-weight="700">archive.zip</text>
+        <text class="v-s" x="188" y="88" font-size="14">33 GB on disk, no copy</text>
+
+        <!-- flow A -->
+        <path class="v-line" d="M260 108 L260 176"/>
+        <rect class="pk" x="-8" y="-5.5" width="16" height="11" rx="3" fill="#37b8f2" style="offset-path:path('M260 108 L260 176');--d:2.2s;--dl:0s"/>
+        <rect class="pk" x="-8" y="-5.5" width="16" height="11" rx="3" fill="#37b8f2" style="offset-path:path('M260 108 L260 176');--d:2.2s;--dl:.75s"/>
+        <rect class="pk" x="-8" y="-5.5" width="16" height="11" rx="3" fill="#37b8f2" style="offset-path:path('M260 108 L260 176');--d:2.2s;--dl:1.5s"/>
+
+        <!-- engine -->
+        <circle class="core-pulse" cx="260" cy="262" r="100" fill="url(#glow)"/>
+        <circle class="ring" cx="260" cy="262" r="88" fill="none" stroke="#229ed9" stroke-width="3" stroke-dasharray="3 11" stroke-linecap="round"/>
+        <circle class="ring rev" cx="260" cy="262" r="78" fill="none" stroke="var(--svg-line)" stroke-width="2" stroke-dasharray="14 10"/>
+        <circle cx="260" cy="262" r="66" fill="url(#core)"/>
+        <text x="260" y="262" text-anchor="middle" font-family="var(--sans)" font-size="30" font-weight="800" fill="#fff">FUSE</text>
+        <text x="260" y="283" text-anchor="middle" font-family="var(--mono)" font-size="12.5" fill="#e6f6ff">archivemount</text>
+
+        <g>
+          <rect class="v-card" x="12" y="228" width="116" height="68" rx="14"/>
+          <text class="v-s" x="70" y="250" text-anchor="middle" font-size="12.5" letter-spacing="1">EXTRACTED</text>
+          <text x="70" y="281" text-anchor="middle" font-family="var(--sans)" font-size="26" font-weight="800" fill="var(--good)">0 GB</text>
+          <path class="v-line slow" d="M128 262 L172 262"/>
+        </g>
+        <g>
+          <rect class="v-card" x="392" y="228" width="116" height="68" rx="14"/>
+          <text class="v-s" x="450" y="250" text-anchor="middle" font-size="12.5" letter-spacing="1">VFS MOUNT</text>
+          <text class="v-m blink" x="450" y="279" text-anchor="middle" font-size="14" font-weight="700">.mnt_xxx</text>
+          <path class="v-line slow" d="M392 262 L348 262"/>
+        </g>
+
+        <!-- fan out to the pool -->
+        <rect class="v-pool" x="34" y="384" width="452" height="126" rx="22"/>
+        <g fill="none">
+          <path class="v-line" d="M260 348 C260 372 92 372 92 408"/>
+          <path class="v-line" d="M260 348 C260 372 204 372 204 408"/>
+          <path class="v-line" d="M260 348 C260 372 316 372 316 408"/>
+          <path class="v-line" d="M260 348 C260 372 428 372 428 408"/>
+        </g>
+        <rect class="pk" x="-8" y="-5.5" width="16" height="11" rx="3" fill="#37b8f2" style="offset-path:path('M260 348 C260 372 92 372 92 408');--d:4s;--dl:0s"/>
+        <rect class="pk" x="-8" y="-5.5" width="16" height="11" rx="3" fill="#37b8f2" style="offset-path:path('M260 348 C260 372 204 372 204 408');--d:4s;--dl:1s"/>
+        <rect class="pk" x="-8" y="-5.5" width="16" height="11" rx="3" fill="#37b8f2" style="offset-path:path('M260 348 C260 372 316 372 316 408');--d:4s;--dl:2s"/>
+        <rect class="pk" x="-8" y="-5.5" width="16" height="11" rx="3" fill="#37b8f2" style="offset-path:path('M260 348 C260 372 428 372 428 408');--d:4s;--dl:3s"/>
+
+        <g class="n1"><rect class="v-card" x="45" y="408" width="94" height="62" rx="13"/><rect class="node-ring" x="45" y="408" width="94" height="62" rx="13" fill="none" stroke="#37b8f2" stroke-width="3"/><text class="v-t" x="92" y="433" text-anchor="middle" font-size="14" font-weight="700">session 1</text><rect x="62" y="446" width="60" height="7" rx="3.5" fill="var(--svg-line)" opacity=".5"/><rect class="load" x="62" y="446" width="60" height="7" rx="3.5" fill="#37b8f2"/></g>
+        <g class="n2"><rect class="v-card" x="157" y="408" width="94" height="62" rx="13"/><rect class="node-ring" x="157" y="408" width="94" height="62" rx="13" fill="none" stroke="#37b8f2" stroke-width="3"/><text class="v-t" x="204" y="433" text-anchor="middle" font-size="14" font-weight="700">session 2</text><rect x="174" y="446" width="60" height="7" rx="3.5" fill="var(--svg-line)" opacity=".5"/><rect class="load" x="174" y="446" width="60" height="7" rx="3.5" fill="#37b8f2"/></g>
+        <g class="n3"><rect class="v-card" x="269" y="408" width="94" height="62" rx="13"/><rect class="node-ring" x="269" y="408" width="94" height="62" rx="13" fill="none" stroke="#37b8f2" stroke-width="3"/><text class="v-t" x="316" y="433" text-anchor="middle" font-size="14" font-weight="700">session 3</text><rect x="286" y="446" width="60" height="7" rx="3.5" fill="var(--svg-line)" opacity=".5"/><rect class="load" x="286" y="446" width="60" height="7" rx="3.5" fill="#37b8f2"/></g>
+        <g class="n4"><rect class="v-card" x="381" y="408" width="94" height="62" rx="13"/><rect class="node-ring" x="381" y="408" width="94" height="62" rx="13" fill="none" stroke="#37b8f2" stroke-width="3"/><text class="v-t" x="428" y="433" text-anchor="middle" font-size="14" font-weight="700">session 4</text><rect x="398" y="446" width="60" height="7" rx="3.5" fill="var(--svg-line)" opacity=".5"/><rect class="load" x="398" y="446" width="60" height="7" rx="3.5" fill="#37b8f2"/></g>
+        <text class="v-s" x="260" y="496" text-anchor="middle" font-size="13">TDLib pool · round-robin uploads</text>
+
+        <!-- destinations -->
+        <g fill="none">
+          <path class="v-line" d="M260 510 C260 530 97 528 97 552"/>
+          <path class="v-line slow" d="M260 510 L260 552"/>
+          <path class="v-line slow" d="M260 510 C260 530 423 528 423 552"/>
+        </g>
+        <rect class="pk" x="-8" y="-5.5" width="16" height="11" rx="3" fill="#37b8f2" style="offset-path:path('M260 510 C260 530 97 528 97 552');--d:1.8s;--dl:0s"/>
+        <rect class="pk" x="-8" y="-5.5" width="16" height="11" rx="3" fill="#37b8f2" style="offset-path:path('M260 510 C260 530 97 528 97 552');--d:1.8s;--dl:.9s"/>
+        <rect class="pk" x="-6" y="-4.5" width="12" height="9" rx="3" fill="#7fd0fa" style="offset-path:path('M260 510 L260 552');--d:3.2s;--dl:1.2s"/>
+        <rect class="pk" x="-6" y="-4.5" width="12" height="9" rx="3" fill="#7fd0fa" style="offset-path:path('M260 510 C260 530 423 528 423 552');--d:3.2s;--dl:2.4s"/>
+
+        <rect class="v-card" x="22" y="552" width="150" height="72" rx="16" style="stroke:#229ed9;stroke-width:2"/>
+        <circle cx="52" cy="588" r="19" fill="#229ed9"/><path d="M42 588 L62 579 L57 598 L51 592 Z" fill="#fff"/>
+        <text class="v-t" x="80" y="585" font-size="16" font-weight="700">Telegram</text>
+        <text class="v-s" x="80" y="604" font-size="13">primary leech</text>
+
+        <rect class="v-card" x="185" y="552" width="150" height="72" rx="16"/>
+        <g transform="translate(216,590)" fill="none" stroke="#229ed9" stroke-width="2.6" stroke-linejoin="round"><path d="M-13 8 a8 8 0 0 1 2-15.5 a10 10 0 0 1 19-1 a8 8 0 0 1 2 16.5 z"/></g>
+        <text class="v-t" x="240" y="585" font-size="14.5" font-weight="700">Google Drive</text>
+        <text class="v-s" x="240" y="604" font-size="12.5">async backup</text>
+
+        <rect class="v-card" x="348" y="552" width="150" height="72" rx="16"/>
+        <g transform="translate(379,590)" fill="none" stroke="#229ed9" stroke-width="2.6" stroke-linejoin="round"><path d="M-13 8 a8 8 0 0 1 2-15.5 a10 10 0 0 1 19-1 a8 8 0 0 1 2 16.5 z"/></g>
+        <text class="v-t" x="402" y="585" font-size="16" font-weight="700">Rclone</text>
+        <text class="v-s" x="402" y="604" font-size="12.5">remotes</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="problem" class="alt">
+  <div class="wrap compare">
+    <div class="rv">
+      <span class="kicker">The problem it targets</span>
+      <h2>The double-storage penalty on small VPS disks</h2>
+      <p class="sub">Classic mirror bots download an archive, extract everything with <code>7z x</code>, then pre-split the files before uploading. A 33 GB season pack can need roughly 70 to 100 GB of local disk. This fork mounts the archive with <code>archivemount -o readonly,nosave</code> instead, reads each file on the fly, uploads it and purges the temporary split chunk straight away.</p>
+      <p class="sub" style="margin-bottom:0">Peak disk is capped at the archive size plus one transient split chunk.</p>
+    </div>
+    <div class="bars rv" style="--rd:.1s">
+      <div class="bar-row">
+        <div class="bar-label"><span>Upstream flow (<code>7z x</code> + upfront splits)</span><span class="tag-bad">88.2 GB peak</span></div>
+        <div class="bar legacy" role="img" aria-label="88.2 gigabytes peak disk, upstream flow"><i style="--w:100%"></i></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span>This fork (FUSE + per-file split)</span><span class="tag-good">35.4 GB peak</span></div>
+        <div class="bar fuse" role="img" aria-label="35.4 gigabytes peak disk, FUSE flow"><i style="--w:40%"></i></div>
+      </div>
+      <p class="note">README benchmark profile (author-reported, not independently verified): a 33.0 GB ZIP with 16 episodes of about 2.06 GB each on an 80 GB SSD, 4-core VPS. The README lists a 59.8% smaller disk footprint and 0.0 GB written during extraction.</p>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head rv"><span class="kicker">Key features</span><h2>Built for big archives and busy Telegram accounts</h2>
+    <p class="sub">Everything below comes from the project README and docs.</p></div>
+    <div class="grid f">
+      <article class="card rv"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></div><h3>FUSE zero-double-storage engine</h3><p>Archives are mounted through Linux VFS with <code>archivemount</code> (<code>readonly,nosave</code>) instead of being extracted. Peak storage is the archive plus one transient split chunk.</p></article>
+      <article class="card rv" style="--rd:.05s"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m7.5 9 1.5 1.5L12 7.5M7.5 15l1.5 1.5 3-3M15 9h3M15 15h3"/></svg></div><h3>Inline Telegram ZIP picker</h3><p><code>/leech &lt;link&gt; -e -s</code> opens a paginated keyboard with live sizes, per-file toggles, select all / deselect all, and a 60-second auto-continue timer.</p></article>
+      <article class="card rv" style="--rd:.1s"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="4.5" cy="6" r="2"/><circle cx="19.5" cy="6" r="2"/><circle cx="4.5" cy="18" r="2"/><circle cx="19.5" cy="18" r="2"/><path d="m6 7 4 3.5M18 7l-4 3.5M6 17l4-3.5M18 17l-4-3.5"/></svg></div><h3>TDLib multi-session pool</h3><p>Uploads rotate round-robin across several authenticated userbot sessions (<code>tdlib_user</code>, <code>tdlib_user_2</code>, ...). Supports files up to 4 GB with Premium.</p></article>
+      <article class="card rv"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 18 9.5a4 4 0 0 1-.5 8.5z"/><path d="M12 10v6m0 0-2.5-2.5M12 16l2.5-2.5"/></svg></div><h3>Dual leech and Drive backup</h3><p>Send the primary leech to Telegram, then asynchronously replicate the finished files to Google Drive or Rclone. Each destination has its own failure boundary.</p></article>
+      <article class="card rv" style="--rd:.05s"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m10 9.5 4.5 2.5-4.5 2.5zM3 9h2M3 15h2M19 9h2M19 15h2"/></svg></div><h3>Smart WZML captions</h3><p><code>ffprobe</code> and <code>langcodes</code> read duration, audio languages and subtitle tracks and fill a caption template with <code>{filename}</code>, <code>{size}</code>, <code>{duration}</code>, <code>{languages}</code> and <code>{subtitles}</code>.</p></article>
+      <article class="card rv" style="--rd:.1s"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div><h3>Multi-engine ingestion</h3><p>Direct HTTP(S) links, BitTorrent through <code>aria2c</code> and <code>qBittorrent</code> (with search plugins), Usenet via SABnzbd, JDownloader2 and <code>yt-dlp</code>.</p></article>
+      <article class="card rv"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 18 9.5a4 4 0 0 1-.5 8.5z"/></svg></div><h3>Cloud storage options</h3><p>Google Drive with OAuth or Service Account cycling, Team Drives, Mega.nz and 40+ Rclone storage backends.</p></article>
+      <article class="card rv" style="--rd:.05s"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.2 7.8 8 9 4.8-1.2 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>Leech vs mirror guard</h3><p>An <code>is_leech</code> guard keeps <code>/leech</code> tasks from leaking into Google Drive, and cleanup unmounts leftover FUSE mounts with <code>fusermount -uz</code>.</p></article>
+      <article class="card rv" style="--rd:.1s"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div><h3>Docker-ready</h3><p>Ships a <code>Dockerfile</code> and <code>docker-compose.yml</code>. FUSE needs <code>cap_add: SYS_ADMIN</code> and the <code>/dev/fuse</code> device.</p></article>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="alt">
+  <div class="wrap">
+    <div class="sec-head rv"><span class="kicker">How it works</span><h2>From command to cleaned-up disk in six steps</h2>
+    <p class="sub">The end-to-end execution pipeline, as described in the README and <a href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/architecture/FUSE_ZERO_DOUBLE_STORAGE.md">architecture docs</a>.</p></div>
+    <ol class="steps">
+      <li class="rv"><h3>Command and download</h3><p><code>/leech &lt;url&gt; -e -s</code> starts the task. A download engine (aria2c, qBittorrent, SABnzbd, JDownloader2, yt-dlp or direct) fetches the archive.</p></li>
+      <li class="rv" style="--rd:.05s"><h3>FUSE mount</h3><p>The archive is mounted with <code>archivemount</code> (<code>readonly,nosave</code>) into a virtual <code>.mnt_xxx</code> directory. Nothing is extracted to disk.</p></li>
+      <li class="rv" style="--rd:.1s"><h3>Pick your files</h3><p>With <code>-s</code>, an inline Telegram keyboard lists the files. Toggle what you want, or let the 60-second timer continue.</p></li>
+      <li class="rv"><h3>Stream, split, upload</h3><p>Each selected file is read from the mount. Files over 2 GB (4 GB with Premium) are split on the fly and sent through the TDLib pool or a Pyrogram worker, with a WZML caption.</p></li>
+      <li class="rv" style="--rd:.05s"><h3>Deliver</h3><p>Telegram is the primary destination. When configured, a secondary Google Drive backup runs asynchronously with an isolated failure boundary.</p></li>
+      <li class="rv" style="--rd:.1s"><h3>Clean up</h3><p><code>fusermount -uz</code> unmounts the virtual disk and the workspace is cleaned, so disk usage returns to baseline.</p></li>
+    </ol>
+
+    <div class="chart rv" style="margin-top:32px">
+      <svg viewBox="0 0 760 350" role="img" aria-labelledby="ch-t ch-d">
+        <title id="ch-t">Disk usage through the pipeline, upstream flow versus FUSE flow</title>
+        <desc id="ch-d">Illustrative chart based on the README benchmark profile. The upstream flow climbs from 32.8 GB to 88.2 GB and hits the 80 GB disk limit. The FUSE flow stays near 35.4 GB and returns to baseline after cleanup.</desc>
+        <line class="c-axis" x1="70" y1="270" x2="740" y2="270"/>
+        <line class="c-axis" x1="70" y1="20" x2="70" y2="270"/>
+        <text class="v-s" x="60" y="274" text-anchor="end" font-size="23">0</text>
+        <text class="v-s" x="60" y="172" text-anchor="end" font-size="23">40</text>
+        <text class="v-s" x="60" y="74" text-anchor="end" font-size="23">80</text>
+        <line class="c-cap" x1="70" y1="70" x2="740" y2="70"/>
+        <text class="v-s" x="738" y="58" text-anchor="end" font-size="22">80 GB disk</text>
+        <!-- y(gb)=270-gb*2.5 -->
+        <polyline class="c-leg" points="100,188 270,100 440,70"/>
+        <text x="452" y="110" font-family="var(--sans)" font-size="24" font-weight="700" fill="var(--bad)">88.2 GB needed: ENOSPC</text>
+        <circle cx="440" cy="70" r="9" fill="var(--bad)"/>
+        <polyline class="c-fuse" points="100,188 270,188 440,181 600,181 720,270"/>
+        <text x="290" y="160" font-family="var(--sans)" font-size="24" font-weight="700" fill="var(--accent-ink)">35.4 GB peak</text>
+        <g class="v-s" font-size="23" text-anchor="middle"><text x="100" y="306">Download</text><text x="270" y="306">Mount</text><text x="440" y="306">Split</text><text x="600" y="306">Upload</text><text x="715" y="306">Clean</text></g>
+        <g fill="var(--card)" stroke="var(--accent)" stroke-width="3"><circle cx="100" cy="188" r="6"/><circle cx="270" cy="188" r="6"/><circle cx="440" cy="181" r="6"/><circle cx="600" cy="181" r="6"/><circle cx="720" cy="270" r="6"/></g>
+      </svg>
+      <div class="legend"><span><i style="background:var(--bad)"></i>Upstream: extract all, then split all</span><span><i style="background:var(--accent)"></i>FUSE: mount, stream one file, purge</span></div>
+      <p class="note" style="padding:0 8px;margin-top:10px">Illustrative. Figures come from the README benchmark profile (33.0 GB ZIP, 80 GB SSD). Peak on the FUSE path is the archive plus one active split chunk.</p>
+    </div>
+  </div>
+</section>
+
+<section id="pool">
+  <div class="wrap split2">
+    <div class="rv">
+      <span class="kicker">TDLib session pool</span>
+      <h2>Round-robin uploads across userbot sessions</h2>
+      <p class="sub">Telegram throttles upload concurrency per account and can issue <code>FloodWait</code> penalties. The pool spreads multi-part uploads over several authenticated TDLib sessions managed by <code>bot/core/tdlib_manager.py</code>.</p>
+      <ul class="bullets">
+        <li><b>Round-robin client acquisition</b> under concurrency locks, so no single session carries every upload.</li>
+        <li><b>Tunable limits:</b> <code>TG_FILE_UPLOAD_CONCURRENCY</code> (8), <code>TG_SPLIT_UPLOAD_CONCURRENCY</code> (4) and <code>TG_UPLOAD_WORKERS</code> (16) are the defaults documented in the config dictionary.</li>
+        <li><b>Setup helpers:</b> <code>setup_tdlib_pool.py</code> authenticates extra sessions interactively, and <code>clone_tdlib_pool.py</code> clones an authorized database into new slots.</li>
+        <li><b>Honest scaling note:</b> the docs say linear speed-up needs a distinct Telegram account per slot. Cloned sessions of one account share that account's bandwidth.</li>
+      </ul>
+    </div>
+    <div class="pool rv" style="--rd:.1s" role="img" aria-label="Upload tasks are dispatched round-robin to four TDLib sessions, which deliver to Telegram">
+      <div class="pool-top"><span class="pill">upload tasks</span><span aria-hidden="true">&rarr;</span><span class="pill">TdlibManager.get_upload_client()</span></div>
+      <div class="pool-wire" aria-hidden="true"></div>
+      <div class="sessions">
+        <div class="sess"><b>Session 1</b><small>tdlib_user</small><div class="meter"><i></i></div></div>
+        <div class="sess"><b>Session 2</b><small>tdlib_user_2</small><div class="meter"><i></i></div></div>
+        <div class="sess"><b>Session 3</b><small>tdlib_user_3</small><div class="meter"><i></i></div></div>
+        <div class="sess"><b>Session 4</b><small>tdlib_user_4</small><div class="meter"><i></i></div></div>
+      </div>
+      <div class="pool-wire" aria-hidden="true"></div>
+      <div class="pool-bottom"><b>Telegram</b> &middot; up to 4 GB per file with a Premium account</div>
+    </div>
+  </div>
+</section>
+
+<section id="picker" class="alt">
+  <div class="wrap split2">
+    <div class="rv">
+      <span class="kicker">Interactive ZIP picker</span>
+      <h2>Choose episodes inside Telegram, not on the server</h2>
+      <p class="sub">After the archive is mounted, the bot sends a paginated inline keyboard. Callback data is compacted to fit Telegram's 64-byte limit (<code>zipsel &lt;mid&gt; &lt;action&gt; [args]</code>).</p>
+      <ul class="bullets">
+        <li><b>Toggle files</b> with instant checked / unchecked feedback, or select / deselect all.</li>
+        <li><b>8 files per page</b> with previous / next navigation and live selected-size totals.</li>
+        <li><b>60-second auto-continue:</b> every file starts selected, and if nobody confirms the picker proceeds with the current selection.</li>
+        <li><b>Small-file pipeline:</b> when only files under 2 GB are chosen, they are uploaded sequentially to avoid choking the single-threaded <code>archivemount</code> daemon.</li>
+        <li><b>Authorization:</b> the task owner, the bot owner and sudo users can use the picker (documented in the docs).</li>
+      </ul>
+    </div>
+    <div class="rv" style="--rd:.1s">
+      <div class="tg" aria-label="Example ZIP picker message based on the README">
+        <div class="tg-msg"><b>Select files from ZIP</b><span>Selected: 3/16 (5.8 GB / 33.2 GB)</span><span>Page 1/2</span><span>Tap to toggle. Done to continue (auto Done in 60s).</span>
+          <ul class="tg-files"><li>[x] The.K2.S01E01.1080p.NF.WEB-DL.mkv (1.9 GB)</li><li>[x] The.K2.S01E02.1080p.NF.WEB-DL.mkv (1.9 GB)</li><li>[x] The.K2.S01E03.1080p.NF.WEB-DL.mkv (2.0 GB)</li><li>[ ] The.K2.S01E04.1080p.NF.WEB-DL.mkv (1.9 GB)</li></ul></div>
+        <div class="tg-btns"><div>Ep 01 (1.9 GB)</div><div>Ep 02 (1.9 GB)</div><div>Ep 03 (2.0 GB)</div><div class="off">Ep 04 (1.9 GB)</div><div>Prev Page</div><div>Next Page</div><div>Select All</div><div>Deselect All</div><div class="full">Done (Start Leech) &nbsp;|&nbsp; Cancel Task</div></div>
+      </div>
+      <div class="cap" aria-label="Example caption output from the README"><em>The.K2.S01E01.1080p.NF.WEB-DL.DDP2.0.H.264.mkv</em>
+1.94 GB
+duration 01:04:12 | Korean [Original], English
+SUBTITLES : English, Spanish, French, Bengali</div>
+      <p class="note">Mock-up reproduced from the README example, including the WZML caption output (shown without emoji).</p>
+    </div>
+  </div>
+</section>
+
+<section id="screens">
+  <div class="wrap">
+    <div class="sec-head rv"><span class="kicker">Project visuals</span><h2>Architecture and demo, straight from the repo</h2>
+    <p class="sub">These images ship in the repository's <code>docs/assets</code> folder. The project README also links a full HD promo video.</p></div>
+    <div class="shots">
+      <figure class="wide rv"><img src="architecture.svg" width="1280" height="840" loading="lazy" alt="Five-stage architecture diagram: archive ingestion, FUSE VFS mount, Telegram ZIP picker, split and TDLib pool, dual delivery, plus the automated teardown lifecycle"><figcaption>Repository architecture diagram: ingestion, FUSE mount, ZIP picker, split and TDLib pool, dual delivery and teardown.</figcaption></figure>
+      <figure class="rv"><img src="zip-picker-demo.jpg" width="960" height="540" loading="lazy" alt="Frame from the project demo showing the Select files directly inside Telegram ZIP picker with Ep 01 to Ep 04"><figcaption>A frame from the repo's <code>demo.gif</code>: the ZIP picker inside Telegram.</figcaption></figure>
+      <div class="rv" style="--rd:.1s"><div class="callout" style="height:100%"><b>Want the full demo?</b><p style="margin:.5em 0 0">The README links a 1080p 60 fps promo video and an animated demo GIF. Both are large files, so they stay on GitHub.</p><p style="margin:.8em 0 0"><a href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/assets/promo-video.mp4">Open the promo video on GitHub</a> &middot; <a href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/assets/demo.gif">demo.gif</a></p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="compare" class="alt">
+  <div class="wrap">
+    <div class="sec-head rv"><span class="kicker">Versus upstream</span><h2>What changed compared with upstream MLTB</h2>
+    <p class="sub">The README compares this fork with <code>anasty17/mirror-leech-telegram-bot</code>.</p></div>
+    <div class="tbl rv"><table>
+      <thead><tr><th>Subsystem</th><th>Upstream MLTB (anasty17)</th><th>This fork</th><th>Benefit</th></tr></thead>
+      <tbody>
+        <tr><td>Archive decompression</td><td>Full disk extract (<code>7z x</code>)</td><td class="us">Linux FUSE (<code>archivemount</code>)</td><td>50%+ disk savings, no raw extraction overhead</td></tr>
+        <tr><td>Selective extraction</td><td>CLI flags / all-or-nothing</td><td class="us">Interactive Telegram ZIP picker</td><td>Paginated GUI, checkboxes, size preview</td></tr>
+        <tr><td>Archive splitting</td><td>Extract all, then split all</td><td class="us">Streaming per-file split and purge</td><td>Peak storage capped at archive + 1 chunk (under 2.5 GB)</td></tr>
+        <tr><td>Telegram upload core</td><td>Single client / Pyrogram</td><td class="us">TDLib multi-session pool</td><td>Round-robin account load balancing</td></tr>
+        <tr><td>Secondary backup</td><td>Telegram or cloud only</td><td class="us">Dual leech + Drive backup</td><td>Independent failure boundary</td></tr>
+        <tr><td>Dynamic captions</td><td>Basic static text</td><td class="us">WZML <code>ffprobe</code> engine</td><td>Codecs, duration, audio and subtitle tracks</td></tr>
+        <tr><td>Download engines</td><td>aria2, qBit, Sabnzbd</td><td class="us">aria2, qBit, Sabnzbd, JD2, yt-dlp</td><td>Broader protocol and media-site coverage</td></tr>
+        <tr><td>Cloud sync</td><td>GDrive / Rclone</td><td class="us">GDrive OAuth + SA + Rclone</td><td>Multi-remote management, SA rotation</td></tr>
+      </tbody></table></div>
+    <h3 style="margin-top:36px" class="rv">Benchmark profile reported in the README</h3>
+    <p class="sub rv" style="margin-bottom:16px">33.0 GB ZIP with 16 episodes (about 2.06 GB each) on an 80 GB SSD, 4-core VPS. These are the author's figures and were not independently reproduced here.</p>
+    <div class="tbl rv"><table>
+      <thead><tr><th>Metric</th><th>Upstream (<code>7z x</code>)</th><th>This fork</th><th>Delta reported</th></tr></thead>
+      <tbody>
+        <tr><td>Peak disk allocation</td><td>88.2 GB (ENOSPC crash)</td><td class="us">35.4 GB (archive + 1 split)</td><td>-59.8%</td></tr>
+        <tr><td>Extraction-phase disk writes</td><td>35.2 GB</td><td class="us">0.0 GB</td><td>-100%</td></tr>
+        <tr><td>Extraction latency</td><td>6 to 12 min decompression wait</td><td class="us">under 800 ms (virtual mount)</td><td>99.8% faster readiness</td></tr>
+        <tr><td>Transient split overhead</td><td>+20.0 GB</td><td class="us">+2.4 GB</td><td>-88.0%</td></tr>
+        <tr><td>Resident RAM (FUSE)</td><td>n/a (writes to disk)</td><td class="us">20 to 50 MB (index cache)</td><td>Low memory footprint</td></tr>
+        <tr><td>Upload concurrency</td><td>1 account</td><td class="us">Up to 10+ accounts round-robin</td><td>10x headroom</td></tr>
+        <tr><td>Split upload throughput</td><td>Sequential blocking</td><td class="us">Concurrent multi-worker</td><td>3.2x real-world throughput</td></tr>
+      </tbody></table></div>
+  </div>
+</section>
+
+<section id="quickstart">
+  <div class="wrap narrow">
+    <div class="sec-head rv"><span class="kicker">Quick start</span><h2>Deploy with Docker Compose</h2>
+    <p class="sub">Commands below are copied from the README. Run them on a Linux host.</p></div>
+    <div class="callout rv"><b>Prerequisites.</b> Linux (Ubuntu 22.04 / 24.04 LTS or Debian 12 recommended, kernel 6.8+), Docker Engine 24+ with Docker Compose v2, host support for <code>/dev/fuse</code>, plus a bot token from @BotFather and API credentials from my.telegram.org.</div>
+    <div class="qs">
+      <h3 class="rv"><span>1</span> Clone the repository</h3>
+      <div class="codeblock rv"><pre><code>git clone https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse.git
+cd mirror-leech-telegram-bot-fuse</code></pre></div>
+      <h3 class="rv"><span>2</span> Configure environment variables</h3>
+      <div class="codeblock rv"><pre><code>cp config_sample.py config.py
+<span class="c-c"># or cp config_sample.env config.env</span>
+nano config.py</code></pre></div>
+      <h3 class="rv"><span>3</span> Initialize the TDLib pool (optional)</h3>
+      <div class="codeblock rv"><pre><code>python3 setup_tdlib_pool.py 3 tdlib_user</code></pre></div>
+      <h3 class="rv"><span>4</span> Deploy with Docker Compose</h3>
+      <p class="rv" style="margin:0 0 10px;color:var(--text-2)">Make sure <code>cap_add: [SYS_ADMIN]</code> and the <code>/dev/fuse</code> device mapping are present in <code>docker-compose.yml</code>:</p>
+      <div class="codeblock rv"><pre><code>services:
+  app:
+    build: .
+    command: bash start.sh
+    restart: on-failure
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - ./downloads:/app/downloads
+      - ./accounts:/app/accounts
+      - ./thumbnails:/app/thumbnails
+      - ./tokens:/app/tokens
+      - ./rclone:/app/rclone
+      - ./qBittorrent:/app/qBittorrent
+      - ./sabnzbd:/app/sabnzbd
+      - ./token.pickle:/app/token.pickle
+      - ./credentials.json:/app/credentials.json
+      - ./cookies.txt:/app/cookies.txt
+      - ./.netrc:/app/.netrc</code></pre></div>
+      <div class="codeblock rv"><pre><code>docker compose up -d --build</code></pre></div>
+    </div>
+    <h3 class="rv" style="margin-top:34px">Operate and inspect</h3>
+    <div class="codeblock rv"><pre><code><span class="c-c"># real-time container logs</span>
+docker compose logs -f app
+
+<span class="c-c"># filter FUSE and upload events</span>
+docker compose logs --tail=100 -f app | grep -E "FUSE|archivemount|Upload|Leech"
+
+<span class="c-c"># check active FUSE virtual mounts</span>
+grep "archivemount" /proc/mounts
+
+<span class="c-c"># force-unmount lingering virtual mountpoints</span>
+fusermount -uz /app/downloads/*/.mnt_*</code></pre></div>
+  </div>
+</section>
+
+<section id="usage" class="alt">
+  <div class="wrap">
+    <div class="sec-head rv"><span class="kicker">Usage and configuration</span><h2>Commands and key settings</h2></div>
+    <div class="split2">
+      <div class="rv">
+        <h3>Bot commands</h3>
+        <div class="tbl"><table style="min-width:0">
+          <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>/leech &lt;url&gt;</code></td><td>Download and upload to Telegram</td></tr>
+            <tr><td><code>/leech &lt;url&gt; -e</code></td><td>Mount via FUSE and leech all files</td></tr>
+            <tr><td><code>/leech &lt;url&gt; -e -s</code></td><td>Mount via FUSE and show the inline ZIP picker</td></tr>
+            <tr><td><code>/mirror &lt;url&gt;</code></td><td>Download and upload to Google Drive or Rclone</td></tr>
+            <tr><td><code>/mirror &lt;url&gt; -e</code></td><td>Extract and mirror contents to cloud</td></tr>
+            <tr><td><code>/ytdl &lt;url&gt;</code></td><td>Download media via yt-dlp, leech or mirror</td></tr>
+            <tr><td><code>/status</code></td><td>Active downloads, speeds, ETA, progress</td></tr>
+            <tr><td><code>/cancel &lt;gid&gt;</code> or <code>all</code></td><td>Cancel one task or all</td></tr>
+            <tr><td><code>/bsettings</code></td><td>Global bot settings (admin only)</td></tr>
+            <tr><td><code>/usettings</code></td><td>User settings: captions, split sizes, prefixes</td></tr>
+          </tbody></table></div>
+      </div>
+      <div class="rv" style="--rd:.08s">
+        <h3>config.py highlights</h3>
+        <div class="codeblock"><pre><code><span class="c-c"># Telegram bot credentials (placeholders)</span>
+BOT_TOKEN = <span class="c-s">"1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"</span>
+OWNER_ID = 987654321
+TELEGRAM_API = 1234567
+TELEGRAM_HASH = <span class="c-s">"0123456789abcdef0123456789abcdef"</span>
+
+<span class="c-c"># TDLib multi-session pool</span>
+TDLIB_USER_DB_PATH = <span class="c-s">"tdlib_user"</span>
+TDLIB_USER_DB_PATHS = [<span class="c-s">"tdlib_user_2"</span>, <span class="c-s">"tdlib_user_3"</span>, <span class="c-s">"tdlib_user_4"</span>]
+TDLIB_USER_UPLOAD = True
+
+<span class="c-c"># Concurrency tuning</span>
+TG_FILE_UPLOAD_CONCURRENCY = 8
+TG_SPLIT_UPLOAD_CONCURRENCY = 4
+TG_UPLOAD_WORKERS = 16
+LEECH_SPLIT_SIZE = 2097152000  <span class="c-c"># 2GB (4194304000 for 4GB Premium)</span></code></pre></div>
+        <p class="note">Full variable list: <a href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/config_sample.py"><code>config_sample.py</code></a> and the <a href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/llms-full.txt">configuration dictionary</a>.</p>
+      </div>
+    </div>
+    <h3 class="rv" style="margin-top:34px">Documentation hub</h3>
+    <div class="grid f">
+      <a class="card rv" href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/architecture/FUSE_ZERO_DOUBLE_STORAGE.md" style="text-decoration:none;color:inherit"><h3>FUSE and ZIP picker spec</h3><p>Mount flags, streaming split pipeline and the picker in depth.</p></a>
+      <a class="card rv" href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/tdlib/TDLIB_POOL_SETUP.md" style="text-decoration:none;color:inherit"><h3>TDLib pool setup</h3><p>Provision and authorize multiple userbot sessions.</p></a>
+      <a class="card rv" href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/architecture/DUAL_LEECH_GDRIVE_BACKUP.md" style="text-decoration:none;color:inherit"><h3>Dual leech and Drive backup</h3><p>Pipeline stages, destination rules and error boundaries.</p></a>
+      <a class="card rv" href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/deployment/PRODUCTION_DEPLOYMENT.md" style="text-decoration:none;color:inherit"><h3>Production deployment</h3><p>Docker Compose runbook with FUSE capability flags.</p></a>
+      <a class="card rv" href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/storage/GDRIVE_OAUTH_SETUP.md" style="text-decoration:none;color:inherit"><h3>Google Drive OAuth</h3><p>Token regeneration, storage and the keep-alive watchdog.</p></a>
+      <a class="card rv" href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/architecture/UPSTREAM_COMPARISON.md" style="text-decoration:none;color:inherit"><h3>Upstream comparison</h3><p>Full diff matrix against upstream MLTB.</p></a>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap narrow faq">
+    <div class="sec-head rv"><span class="kicker">FAQ</span><h2>Frequently asked questions</h2></div>
+    <details class="rv" open><summary>How does FUSE achieve zero double storage on huge archives?</summary><div class="ans"><p>Conventional Telegram mirror bots extract the whole archive to disk with 7z x, which can double storage use (for example a 35 GB ZIP plus 35 GB of extracted files). mirror-leech-telegram-bot-fuse instead mounts the archive read-only through a virtual file system directory with archivemount -o readonly,nosave. Files are read on the fly and uploaded one after another, so total disk use is bounded by the archive size plus a single active split chunk of about 2 GB.</p></div></details>
+    <details class="rv"><summary>Does archivemount decompress the whole archive into RAM?</summary><div class="ans"><p>No. According to the README, archivemount only parses the archive index headers into memory, roughly 20 to 50 MB. When ffmpeg or the uploader reads a specific file offset, archivemount seeks to that byte range and decompresses only the active stream buffer, so memory stays small and stable during multi-gigabyte transfers.</p></div></details>
+    <details class="rv"><summary>How does the TDLib multi-session pool improve uploads?</summary><div class="ans"><p>Telegram throttles upload concurrency per account and can issue FloodWait penalties under heavy load. The pool distributes multi-part uploads across several authenticated userbot sessions (tdlib_user, tdlib_user_2, tdlib_user_3 and so on) in round-robin rotation, and supports files up to 4 GB with a Premium account.</p><p>The setup guide notes that linear speed-up needs a distinct Telegram account for each pool slot. Sessions cloned from one account share that account’s bandwidth quota.</p></div></details>
+    <details class="rv"><summary>What happens if a file inside a mounted ZIP is larger than 2 GB?</summary><div class="ans"><p>The streaming engine reads the file from the FUSE mount, writes split chunks one at a time into a temporary workspace, uploads each chunk through the worker pool, and purges each chunk from disk before starting the next. Disk usage therefore does not balloon, whatever the archive size. The split size is set with LEECH_SPLIT_SIZE (2 GB by default, 4 GB for Telegram Premium).</p></div></details>
+    <details class="rv"><summary>How does the dual Telegram leech plus Google Drive backup work?</summary><div class="ans"><p>When it is configured, the bot first completes the primary Telegram leech and then starts an asynchronous secondary upload to Google Drive. The two destinations have independent failure boundaries: if Google Drive hits a quota limit or a timeout, the Telegram leech is still completed and delivered.</p></div></details>
+    <details class="rv"><summary>Why are small files uploaded one at a time?</summary><div class="ans"><p>The archivemount daemon is single-threaded. Opening many concurrent file handles on the FUSE layer causes I/O contention and stalled transfers. For small files the bot uses an anti-choke sequential dispatcher that symlinks each file into an isolated temporary workspace and uploads them one by one.</p></div></details>
+    <details class="rv"><summary>What happens if I do not answer the ZIP picker?</summary><div class="ans"><p>The inline ZIP picker has a 60-second safety timer. Every file starts selected, and if nobody confirms in time the picker continues with the current selection so that automated batch tasks do not freeze indefinitely. Tapping Cancel Task aborts the task instead.</p></div></details>
+    <details class="rv"><summary>What do I need to run it?</summary><div class="ans"><p>A Linux host (Ubuntu 22.04 or 24.04 LTS or Debian 12 recommended, kernel 6.8+), Docker Engine 24+ with Docker Compose v2, and FUSE support through /dev/fuse. The compose file must grant cap_add SYS_ADMIN and map the /dev/fuse device. You also need a bot token from @BotFather and API credentials from my.telegram.org. The bot targets Python 3.12+ and ships a Dockerfile.</p></div></details>
+    <details class="rv"><summary>Is this a fork of mirror-leech-telegram-bot, and what is the license?</summary><div class="ans"><p>Yes. It builds on python-aria-mirror-bot and anasty17’s mirror-leech-telegram-bot and adds the FUSE engine, ZIP picker, TDLib pool, dual backup and WZML captions. It is distributed under the GNU General Public License v3.0 and maintained by MHJoy99 and the MHJoyBots team. It is not affiliated with Telegram or Google.</p></div></details>
+    <details class="rv"><summary>Which download engines and cloud destinations are supported?</summary><div class="ans"><p>Ingestion covers direct HTTP(S) links, BitTorrent through aria2c and qBittorrent, Usenet through SABnzbd, JDownloader2, Mega and yt-dlp for video and audio sites. Destinations include Telegram chats and channels, Google Drive (OAuth or Service Accounts, Team Drives) and Rclone remotes.</p></div></details>
+  </div>
+</section>
+
+<section id="credits" class="alt">
+  <div class="wrap narrow">
+    <div class="sec-head rv"><span class="kicker">Credits, license and responsible use</span><h2>Built on open-source work</h2></div>
+    <div class="callout rv"><b>License.</b> Distributed under the GNU General Public License v3.0 (GPL-3.0).<br><b>Upstream ecosystem.</b> Built on foundational work from <a href="https://github.com/lzzy12/python-aria-mirror-bot">python-aria-mirror-bot</a> and <a href="https://github.com/anasty17/mirror-leech-telegram-bot">mirror-leech-telegram-bot</a>.<br><b>FUSE engine and innovations.</b> Engineered and maintained by <a href="https://github.com/MHJoy99">MHJoy99</a> and the MHJoyBots team.</div>
+    <div class="callout warn rv" style="margin-top:14px"><b>Use responsibly.</b> This is a self-hosted tool that moves files between services you configure. Only download, mirror or upload content you have the right to handle, and respect the terms of service of Telegram, Google Drive, any download source and every other service you use, as well as applicable law. You are responsible for how your own instance is used.</div>
+  </div>
+</section>
+
+<section id="more">
+  <div class="wrap">
+    <div class="sec-head rv"><span class="kicker">More by MHJoy99</span><h2>Other open-source projects</h2></div>
+    <div class="more">
+      <a class="rv" href="https://mhjoy99.github.io/CCUsageX/"><b>CCUsageX</b><span>Claude Code usage dashboard</span></a>
+      <a class="rv" href="https://mhjoy99.github.io/ZipStream-Hub/" style="--rd:.05s"><b>ZipStream-Hub</b><span>Stream video from remote ZIPs</span></a>
+      <a class="rv" href="https://mhjoy99.github.io/bdx-bench/" style="--rd:.1s"><b>bdx-bench</b><span>Local LLM benchmark + leaderboard</span></a>
+      <a class="rv" href="https://mhjoy99.github.io/speedy-bonding/" style="--rd:.15s"><b>speedy-bonding</b><span>SOCKS5 load balancer for IDM</span></a>
+      <a class="rv" href="https://github.com/MHJoy99" style="--rd:.2s"><b>All projects on GitHub</b><span>github.com/MHJoy99</span></a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <p><b>mirror-leech-telegram-bot-fuse</b> is released under the <a href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/LICENSE">GPL-3.0 license</a>. Built by <a href="https://github.com/MHJoy99">MHJoy99</a>.</p>
+        <p>Not affiliated with or endorsed by Telegram, Google, Docker, or the authors of the upstream projects. Telegram, Google Drive and other names are trademarks of their respective owners.</p>
+        <p>This website uses cookieless Cloudflare Web Analytics.</p>
+      </div>
+      <ul>
+        <li><a href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse">GitHub</a></li>
+        <li><a href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/issues">Issues</a></li>
+        <li><a href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/README.md">Docs</a></li>
+        <li><a href="https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/SECURITY.md">Security</a></li>
+        <li><a href="llms.txt">llms.txt</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<script src="site.js" defer></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "a2f7f3d589ae4c8688a646d54918b0e7"}'></script>
+</body>
+</html>

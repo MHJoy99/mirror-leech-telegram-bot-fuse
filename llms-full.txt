@@ -1,0 +1,63 @@
+# mirror-leech-telegram-bot-fuse: complete description
+
+Website: https://mhjoy99.github.io/mirror-leech-telegram-bot-fuse/
+Repository: https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse
+License: GNU General Public License v3.0 (GPL-3.0)
+Author / maintainer: MHJoy99 (https://github.com/MHJoy99) and the MHJoyBots team
+Version: 2.0.0 (per CITATION.cff, released 2026-08-20)
+Language/runtime: Python 3.12+, Docker (Dockerfile and docker-compose.yml included)
+
+## What it is
+mirror-leech-telegram-bot-fuse is an open-source Telegram "mirror" and "leech" bot. A leech downloads a file or archive and uploads it to Telegram; a mirror downloads it and uploads it to a cloud destination such as Google Drive or an Rclone remote. It is a fork-derived project built on python-aria-mirror-bot (lzzy12) and mirror-leech-telegram-bot (anasty17). The fork adds a Linux FUSE archive-mounting engine, an inline Telegram ZIP picker, a TDLib multi-session upload pool, dual Telegram plus Google Drive delivery and dynamic media captions.
+
+## The problem it targets
+Conventional bots download an archive, extract everything to disk with 7z x, and pre-split the files before upload. For a 33-35 GB archive that can require roughly 70 to 100 GB of local disk, which fails on small VPS disks (ENOSPC).
+
+## The FUSE zero-double-storage engine
+The bot mounts the downloaded archive into the Linux virtual file system with archivemount -o readonly,nosave in a hidden .mnt_xxx directory. Nothing is extracted to disk. Each selected file is read on the fly from the mount; if it is larger than 2 GB (4 GB with Telegram Premium) it is split on the fly into a temporary workspace, uploaded, and the split chunk is purged before the next. Peak disk usage is the archive size plus one transient split chunk (about 2.4 GB in the README profile). archivemount only loads the archive index into memory (README: roughly 20-50 MB). Cleanup unmounts with fusermount -uz and removes temporary files. Because the archivemount daemon is single-threaded, small files (all under 2 GB) are uploaded sequentially via symlinks in an isolated workspace to avoid I/O contention.
+Requirements: a Linux host with FUSE support (/dev/fuse), and a container with cap_add SYS_ADMIN, the /dev/fuse device and security_opt apparmor:unconfined (as in the README compose file). Recommended: Ubuntu 22.04/24.04 LTS or Debian 12, kernel 6.8+, Docker Engine 24+, Docker Compose v2.
+
+## Interactive Telegram ZIP picker
+Command: /leech <link> -e -s. After mounting, the bot sends an inline keyboard with a paginated file list (8 files per page), per-file toggles, select all / deselect all, live selected-size totals, a Done button and a Cancel button. Every file starts selected. A 60-second timer continues automatically with the current selection if nobody confirms. Callback data follows the format "zipsel <mid> <action> [args]" to stay under Telegram's 64-byte limit. The task initiator, the bot owner and sudo users are authorized to use the picker.
+
+## TDLib multi-session pool
+Telegram throttles per-account upload concurrency and can issue FloodWait penalties. The pool (bot/core/tdlib_manager.py) holds several authenticated TDLib userbot sessions (database directories tdlib_user, tdlib_user_2, tdlib_user_3, ...) and hands out upload clients round-robin. Files up to 4 GB are supported with a Telegram Premium account. Configuration: TDLIB_API_ID, TDLIB_API_HASH, TDLIB_USER_DB_PATH, TDLIB_USER_DB_PATHS, TDLIB_USER_UPLOAD, and concurrency settings TG_FILE_UPLOAD_CONCURRENCY (default 8), TG_SPLIT_UPLOAD_CONCURRENCY (default 4), TG_UPLOAD_WORKERS (default 16). Helpers: setup_tdlib_pool.py (interactive authentication of extra sessions, for example python3 setup_tdlib_pool.py 3 tdlib_user) and clone_tdlib_pool.py (clones an authorized database into new slots). The docs note that linear speed-up requires a distinct Telegram account per slot; cloned sessions of one account share that account's bandwidth.
+
+## Dual Telegram leech plus Google Drive backup
+After the primary Telegram leech completes, the bot can replicate the finished files to Google Drive (or Rclone) asynchronously. The destinations have independent failure boundaries: a Drive quota error or timeout does not affect the delivered Telegram leech. An is_leech guard prevents plain /leech tasks from leaking into Google Drive.
+
+## Smart WZML captions
+ffprobe and langcodes extract duration, audio languages and subtitle tracks. The LEECH_CAPTION template supports {filename}, {size}, {duration}, {languages}, {subtitles}.
+
+## Download engines and destinations
+Ingestion: direct HTTP(S) links, aria2c, qBittorrent (with search plugins), SABnzbd (Usenet/NZB), JDownloader2, Mega, yt-dlp (1000+ sites). Destinations: Telegram chats and channels, Google Drive (OAuth or Service Account cycling, Team Drives), Mega.nz, and 40+ Rclone backends.
+
+## Commands (from the README)
+/leech <url>; /leech <url> -e; /leech <url> -e -s; /mirror <url>; /mirror <url> -e; /ytdl <url>; /status; /cancel <gid> or all; /bsettings (admin); /usettings (user settings).
+
+## Quick start (from the README)
+git clone https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse.git
+cd mirror-leech-telegram-bot-fuse
+cp config_sample.py config.py   (or cp config_sample.env config.env)
+nano config.py
+python3 setup_tdlib_pool.py 3 tdlib_user   (optional TDLib pool)
+docker compose up -d --build
+Required settings include BOT_TOKEN (from @BotFather), OWNER_ID, TELEGRAM_API and TELEGRAM_HASH (from my.telegram.org).
+
+## Benchmark profile reported by the README (author-reported, not independently verified)
+Profile: 33.0 GB ZIP with 16 episodes (about 2.06 GB each) on an 80 GB SSD, 4-core VPS.
+- Peak disk: upstream 88.2 GB (ENOSPC crash) vs 35.4 GB (archive + 1 active split), -59.8%.
+- Extraction-phase disk writes: 35.2 GB vs 0.0 GB.
+- Extraction latency: 6-12 minutes vs under 800 ms (virtual mount).
+- Transient split overhead: +20.0 GB vs +2.4 GB.
+- Resident RAM (FUSE): 20-50 MB index cache.
+- Upload concurrency: 1 account vs up to 10+ accounts round-robin; 3.2x real-world split upload throughput reported.
+
+## Comparison with upstream anasty17/mirror-leech-telegram-bot (README)
+Upstream: full 7z x extraction, CLI flags for selection, extract-all-then-split-all, single client / Pyrogram upload, Telegram OR cloud only, basic captions. This fork: archivemount FUSE, inline ZIP picker, streaming per-file split and purge, TDLib multi-session pool, dual leech + Drive backup, WZML ffprobe captions, plus yt-dlp and JDownloader2 engines.
+
+## Credits
+Built on python-aria-mirror-bot (https://github.com/lzzy12/python-aria-mirror-bot) and mirror-leech-telegram-bot (https://github.com/anasty17/mirror-leech-telegram-bot). FUSE engine and innovations engineered and maintained by MHJoy99 and the MHJoyBots team. Not affiliated with Telegram, Google, Docker or the upstream authors.
+
+## Use responsibly
+This is a self-hosted tool that moves files between services you configure. Only download, mirror or upload content you have the right to handle, and respect the terms of service of Telegram, Google Drive, any download source and every other service you use, as well as applicable law. You are responsible for how your own instance is used.

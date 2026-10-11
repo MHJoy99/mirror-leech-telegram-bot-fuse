@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mhjoy99.github.io/mirror-leech-telegram-bot-fuse/sitemap.xml

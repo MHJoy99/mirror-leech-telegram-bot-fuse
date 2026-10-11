@@ -1,0 +1,26 @@
+# mirror-leech-telegram-bot-fuse
+
+> Open-source Telegram mirror and leech bot (Python 3.12+, Docker, GPL-3.0) that mounts archives with Linux FUSE (archivemount, readonly,nosave) instead of extracting them, offers an inline Telegram ZIP picker, and uploads through a TDLib multi-session pool to Telegram, Google Drive or Rclone. A fork-derived project by MHJoy99 built on python-aria-mirror-bot and anasty17/mirror-leech-telegram-bot.
+
+Key facts: a Linux host with /dev/fuse and Docker Engine 24+ / Compose v2 is required; the FUSE container needs cap_add SYS_ADMIN. Version 2.0.0 (CITATION.cff). Benchmarks on the site are author-reported README figures, not independently verified. Use responsibly: respect the terms of service of Telegram, Google Drive and every service you use, and applicable law.
+
+## Project
+- [Website](https://mhjoy99.github.io/mirror-leech-telegram-bot-fuse/): overview, how it works, quick start, FAQ
+- [Full plain-text explanation](https://mhjoy99.github.io/mirror-leech-telegram-bot-fuse/llms-full.txt): complete description for LLMs
+- [GitHub repository](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse): source code, issues, license (GPL-3.0)
+- [README](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse#readme): features, architecture, configuration, commands
+
+## Documentation (GitHub)
+- [Docs hub](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/README.md)
+- [FUSE zero-double-storage and ZIP picker specification](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/architecture/FUSE_ZERO_DOUBLE_STORAGE.md)
+- [System architecture](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/architecture/SYSTEM_ARCHITECTURE.md)
+- [Upstream comparison](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/architecture/UPSTREAM_COMPARISON.md)
+- [Dual leech and Google Drive backup](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/architecture/DUAL_LEECH_GDRIVE_BACKUP.md)
+- [TDLib pool setup](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/tdlib/TDLIB_POOL_SETUP.md)
+- [Production deployment](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/deployment/PRODUCTION_DEPLOYMENT.md)
+- [Google Drive OAuth setup](https://github.com/MHJoy99/mirror-leech-telegram-bot-fuse/blob/main/docs/storage/GDRIVE_OAUTH_SETUP.md)
+
+## Optional
+- [Upstream: mirror-leech-telegram-bot](https://github.com/anasty17/mirror-leech-telegram-bot)
+- [Upstream: python-aria-mirror-bot](https://github.com/lzzy12/python-aria-mirror-bot)
+- [Author: MHJoy99](https://github.com/MHJoy99)
