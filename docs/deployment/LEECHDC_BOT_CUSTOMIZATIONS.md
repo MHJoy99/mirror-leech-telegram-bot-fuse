@@ -72,5 +72,6 @@ Telegram uploads were slow because every upload went through user accounts whose
 - Safe fallbacks: a helper that cannot post in the chat, is rate-limited or errors hands the file back to the main bot. Media groups and private chats always use the main bot.
 - Sessions are stored on disk so a restart does not log the bots in again (Telegram rate-limits bot logins hard).
 - Kill switch without a restart: create the file `/app/helper_off` in the container.
+- 2026-10-17: the two original helper bots were banned by Telegram antispam and replaced by three new helper bots (four senders with the main bot). A banned helper shows `UserDeactivatedBan` in the log and its files fall back to the main bot; replace its token in `HELPER_BOT_TOKENS` (config.py and MongoDB) and restart when idle.
 - The status API lists per-bot load and last speed under `uploaders`.
 - Also fixed: a retried TDLib upload counted its bytes twice, so the dashboard showed over 100%.
