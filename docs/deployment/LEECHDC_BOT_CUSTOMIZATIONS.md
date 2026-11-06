@@ -75,3 +75,13 @@ Telegram uploads were slow because every upload went through user accounts whose
 - 2026-10-17: the two original helper bots were banned by Telegram antispam and replaced by three new helper bots (four senders with the main bot). A banned helper shows `UserDeactivatedBan` in the log and its files fall back to the main bot; replace its token in `HELPER_BOT_TOKENS` (config.py and MongoDB) and restart when idle.
 - The status API lists per-bot load and last speed under `uploaders`.
 - Also fixed: a retried TDLib upload counted its bytes twice, so the dashboard showed over 100%.
+
+## Upload thread leak fixes (2026-10-23, 2026-11-06)
+
+Symptom: after a day or two every upload sits at 0 B, then fails with "Files Corrupted or unable to upload. Failed to invoke upload.SaveFilePart after 10 retries"; the container has thousands of `CryptoWorker` threads and is near its memory limit, so its CPU share is throttled.
+
+- Cause: Kurigram (the Pyrogram fork) starts a one-thread crypto pool for every TCP transport and never shuts it down. Big uploads open several temporary connections, and every reconnect builds a new transport. A queued `Session.restart()` could also revive a temporary upload session after the upload had stopped it.
+- Fix (`bot/core/telegram_speedups.py`): a temporary session's pool is shut down after it stops (2026-10-23); every closed or replaced connection shuts its pool down, and a finished temporary upload session can no longer restart (2026-11-06).
+- Kill switch: environment variable `CRYPTO_POOL_FIX=0` (the 2026-11-06 part), then restart.
+- Health check: the container's thread count should stay in the low hundreds; RAM after a restart is about 0.5 GiB.
+- Not changed: file names, captions, tags, status API, destination chats.
