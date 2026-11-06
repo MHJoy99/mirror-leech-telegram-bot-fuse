@@ -85,3 +85,9 @@ Symptom: after a day or two every upload sits at 0 B, then fails with "Files Cor
 - Kill switch: environment variable `CRYPTO_POOL_FIX=0` (the 2026-11-06 part), then restart.
 - Health check: the container's thread count should stay in the low hundreds; RAM after a restart is about 0.5 GiB.
 - Not changed: file names, captions, tags, status API, destination chats.
+
+## RSS cc line without a live mention (2026-11-06)
+
+- When the sender of an order is a chat (the RSS channel), the `cc:` line of the reply card shows the chat title with a word joiner after every `@`. A title that contains an @handle no longer pings that account on every file.
+- Kill switch: `CC_TITLE_NO_MENTION = False`, then restart.
+- Not changed: users with a username or mention, file names, captions, tags, status API, destination chats.
