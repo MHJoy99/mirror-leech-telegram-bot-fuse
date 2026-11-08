@@ -91,3 +91,11 @@ Symptom: after a day or two every upload sits at 0 B, then fails with "Files Cor
 - When the sender of an order is a chat (the RSS channel), the `cc:` line of the reply card shows the chat title with a word joiner after every `@`. A title that contains an @handle no longer pings that account on every file.
 - Kill switch: `CC_TITLE_NO_MENTION = False`, then restart.
 - Not changed: users with a username or mention, file names, captions, tags, status API, destination chats.
+
+## Upload self-heal (2026-11-08)
+
+- A bot's cached upload connection can die silently: it still looks connected, but nothing it writes arrives and no error is raised. Files sent through it used to hang about 40 minutes and then fail with a false "Files Corrupted" message.
+- Now the upload connection is pinged before each file and replaced if it does not answer; a part that fails on a network error is resent on a fresh connection; a file that still fails with a network error moves to another bot in the pool (up to 3 switches) and the failing bot is avoided for 15 minutes.
+- Network failures now say "Upload failed: Telegram's connection kept failing on every bot tried; the file itself is fine." Only a real bad file is called corrupted. The status API reason for network failures is `upload_failed` or `timeout` instead of `extract_failed`.
+- Kill switch: create the file `/app/upload_heal_off` in the container (takes effect at once), or set env `UPLOAD_SELF_HEAL=0`.
+- Not changed: file names, split part names, document type, status API fields, destination chats.
