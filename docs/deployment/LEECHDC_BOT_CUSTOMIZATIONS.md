@@ -99,3 +99,10 @@ Symptom: after a day or two every upload sits at 0 B, then fails with "Files Cor
 - Network failures now say "Upload failed: Telegram's connection kept failing on every bot tried; the file itself is fine." Only a real bad file is called corrupted. The status API reason for network failures is `upload_failed` or `timeout` instead of `extract_failed`.
 - Kill switch: create the file `/app/upload_heal_off` in the container (takes effect at once), or set env `UPLOAD_SELF_HEAL=0`.
 - Not changed: file names, split part names, document type, status API fields, destination chats.
+
+## Partial jobs are reported (2026-11-08)
+
+- A job could end "done" while one split part, or one file of a multi-file job, had failed. The event feed simply left that part out of `files[]`, so a consumer could not tell that anything was missing.
+- The final event of every job now also has `files_total` (files or parts the uploader tried), `failed_files` (each file it gave up on, with `kind` = `network` when Telegram's connection failed and the file is fine, or `bad_file` when the same source would fail again) and `complete` (true only when everything arrived).
+- Additive: no existing field, state, file name, caption or tag changed; `api_version` stays 1. Older events lack the new fields.
+- Kill switch: create the file `/app/event_failed_files_off` in the container (takes effect at once), or set env `EVENT_FAILED_FILES=0`.
