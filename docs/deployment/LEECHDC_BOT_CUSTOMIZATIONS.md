@@ -106,3 +106,9 @@ Symptom: after a day or two every upload sits at 0 B, then fails with "Files Cor
 - The final event of every job now also has `files_total` (files or parts the uploader tried), `failed_files` (each file it gave up on, with `kind` = `network` when Telegram's connection failed and the file is fine, or `bad_file` when the same source would fail again) and `complete` (true only when everything arrived).
 - Additive: no existing field, state, file name, caption or tag changed; `api_version` stays 1. Older events lack the new fields.
 - Kill switch: create the file `/app/event_failed_files_off` in the container (takes effect at once), or set env `EVENT_FAILED_FILES=0`.
+
+## A slow access check no longer drops a helper bot (2026-11-25)
+
+- Before each upload the pool checks that a helper bot may post in the destination chat. A timeout, network error or flood wait during that check used to count as "not allowed to post", so healthy helper bots (all admins) were left out of the pool for two minutes whenever Telegram was slow.
+- Now only a real answer from Telegram (left, banned, restricted, no post rights in a channel, or an access-refused error) marks a helper as unable to post. A failed check keeps the last known answer, or keeps the helper in the pool when there is none; it is never cached. A banned bot is still removed and the owner is alerted.
+- No file names, captions, events or API fields changed.
