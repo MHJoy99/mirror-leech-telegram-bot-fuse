@@ -115,6 +115,6 @@ Symptom: after a day or two every upload sits at 0 B, then fails with "Files Cor
 
 ## Health watchdog with automatic restart (2026-11-25)
 
-- A small host service checks the bot every minute and restarts the container when it is clearly unwell: memory at 88% or more of its limit for 5 minutes, an abnormal thread count, uploads that stopped moving for 10 minutes or repeated upload failures, or a status API that stopped answering. It also restarts after 36 hours at a moment with no upload running (preferring the night), and after 48 hours regardless.
+- A small host service checks the bot every minute and restarts the container when it is clearly unwell: memory at 88% or more of its limit for 5 minutes, an abnormal thread count, uploads that stopped moving for 10 minutes or repeated upload failures, a status API that stopped answering, or (since 2026-11-27) uploads timing out on every bot (at least 15 bot switches and more switches than finished uploads in the last hour; this was behind the "Corrupted Files" split parts). It also restarts after 36 hours at a moment with no upload running (preferring the night), and after 48 hours regardless.
 - Safety: 20 minutes between restarts, at most 4 in 6 hours (then it stops and tells the owner once), a dry-run mode and a kill switch. Before each restart it saves the list of running tasks, so lost orders can be resent.
 - No bot code, file names, captions, events or API fields changed.
